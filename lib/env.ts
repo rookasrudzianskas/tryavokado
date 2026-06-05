@@ -13,7 +13,11 @@ import { z } from "zod";
  * `NEXT_PUBLIC_*` values from `lib/env-public.ts`.
  */
 
-const optionalString = z.string().trim().min(1).optional();
+// Optional env var: treat empty strings (e.g. `FOO=` in .env) as unset.
+const optionalString = z.preprocess(
+  (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+  z.string().trim().min(1).optional(),
+);
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),

@@ -151,7 +151,13 @@ export async function setOnboardingStep(
 
 export async function recordAudit(
   workspaceId: string,
-  entry: Omit<AuditDoc, "id" | "createdAt" | "result"> & {
+  entry: {
+    action: string;
+    actorUid?: string | null;
+    actorLabel?: string | null;
+    entityType?: string | null;
+    entityId?: string | null;
+    summary?: string | null;
     result?: "success" | "failure";
   },
 ) {
