@@ -73,13 +73,14 @@ export function initialsFromName(name?: string | null) {
     .join("");
 }
 
-/** Deterministic slug from arbitrary text. */
+/** Deterministic, URL-safe slug from arbitrary text (diacritics folded). */
 export function slugify(input: string) {
   return input
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "") // strip combining diacritical marks
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
+    .replace(/[^a-z0-9]+/g, "-") // any run of non-alphanumerics → single hyphen
     .replace(/^-+|-+$/g, "");
 }
 
