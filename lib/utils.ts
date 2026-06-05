@@ -9,11 +9,11 @@ export function cn(...inputs: ClassValue[]) {
 /** Format a number as currency. Falls back gracefully for unknown currencies. */
 export function formatCurrency(
   value: number,
-  currency = "USD",
+  currency = "EUR",
   opts: Intl.NumberFormatOptions = {},
 ) {
   try {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IE", {
       style: "currency",
       currency,
       maximumFractionDigits: value % 1 === 0 ? 0 : 2,

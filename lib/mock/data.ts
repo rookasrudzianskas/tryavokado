@@ -30,9 +30,9 @@ export const DEMO_STORE: StoreMetadata = {
   name: DEMO_BRAND_NAME,
   domain: DEMO_DOMAIN,
   description:
-    "Small-batch specialty coffee roasted in Portland. Direct-trade beans, recyclable packaging, and a subscription loved by home baristas.",
-  currency: "USD",
-  country: "US",
+    "Small-batch specialty coffee roasted in Lisbon. Direct-trade beans, recyclable packaging, and a subscription loved by home baristas.",
+  currency: "EUR",
+  country: "PT",
   primaryColorHints: ["#2f4a2f", "#c98a3c", "#f4efe6"],
 };
 
@@ -49,7 +49,7 @@ export const DEMO_PRODUCTS: StoreProduct[] = [
     tags: ["dark-roast", "espresso", "bestseller"],
     priceMin: 18,
     priceMax: 42,
-    currency: "USD",
+    currency: "EUR",
     images: [{ url: img("coffee-dark"), alt: "Bag of dark roast coffee" }],
     featuredImageUrl: img("coffee-dark"),
     variants: [
@@ -69,7 +69,7 @@ export const DEMO_PRODUCTS: StoreProduct[] = [
     tags: ["light-roast", "single-origin", "pour-over"],
     priceMin: 20,
     priceMax: 46,
-    currency: "USD",
+    currency: "EUR",
     images: [{ url: img("coffee-light"), alt: "Bag of light roast coffee" }],
     featuredImageUrl: img("coffee-light"),
     variants: [
@@ -89,7 +89,7 @@ export const DEMO_PRODUCTS: StoreProduct[] = [
     tags: ["subscription", "recurring", "hero"],
     priceMin: 16,
     priceMax: 38,
-    currency: "USD",
+    currency: "EUR",
     images: [{ url: img("coffee-sub"), alt: "Coffee subscription box" }],
     featuredImageUrl: img("coffee-sub"),
     variants: [
@@ -109,7 +109,7 @@ export const DEMO_PRODUCTS: StoreProduct[] = [
     tags: ["equipment", "upsell", "gift"],
     priceMin: 54,
     priceMax: 54,
-    currency: "USD",
+    currency: "EUR",
     images: [{ url: img("pourover"), alt: "Ceramic pour-over set" }],
     featuredImageUrl: img("pourover"),
     variants: [
@@ -129,7 +129,7 @@ export const DEMO_PRODUCTS: StoreProduct[] = [
     tags: ["cold-brew", "summer"],
     priceMin: 24,
     priceMax: 24,
-    currency: "USD",
+    currency: "EUR",
     images: [{ url: img("coldbrew"), alt: "Cold brew concentrate bottle" }],
     featuredImageUrl: img("coldbrew"),
     variants: [
@@ -147,7 +147,7 @@ export const DEMO_PRODUCTS: StoreProduct[] = [
     tags: ["merch", "gift", "retargeting"],
     priceMin: 19,
     priceMax: 19,
-    currency: "USD",
+    currency: "EUR",
     images: [{ url: img("mug"), alt: "Enamel coffee mug" }],
     featuredImageUrl: img("mug"),
     variants: [
@@ -185,7 +185,7 @@ export const DEMO_COLLECTIONS: StoreCollection[] = [
 
 export const DEMO_ORDER_SUMMARY: OrderSummary = {
   available: true,
-  currency: "USD",
+  currency: "EUR",
   last30dRevenue: 48250,
   last30dOrders: 1340,
   averageOrderValue: 36,
@@ -200,8 +200,8 @@ export const DEMO_META_AD_ACCOUNTS: MetaAdAccount[] = [
   {
     externalId: "act_demo_1001",
     name: "Marlowe Coffee — Primary",
-    currency: "USD",
-    timezone: "America/Los_Angeles",
+    currency: "EUR",
+    timezone: "Europe/Lisbon",
     accountStatus: "ACTIVE",
     disableReason: null,
     fundingReady: true,
@@ -229,8 +229,8 @@ export const DEMO_META_PERMISSIONS: MetaPermission[] = [
 export const DEMO_META_READINESS: MetaReadiness = {
   ready: true,
   score: 92,
-  currency: "USD",
-  timezone: "America/Los_Angeles",
+  currency: "EUR",
+  timezone: "Europe/Lisbon",
   fundingReady: true,
   accountStatus: "ACTIVE",
   restrictions: [],

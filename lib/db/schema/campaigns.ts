@@ -38,7 +38,7 @@ export const campaignDrafts = pgTable(
     plan: jsonb("plan").$type<Record<string, unknown>>().notNull().default({}),
     dailyBudget: numeric("daily_budget", { precision: 12, scale: 2 }),
     lifetimeBudget: numeric("lifetime_budget", { precision: 12, scale: 2 }),
-    currency: text("currency").notNull().default("USD"),
+    currency: text("currency").notNull().default("EUR"),
     approval: approvalStateEnum("approval").notNull().default("draft"),
     validationWarnings: jsonb("validation_warnings").$type<
       Record<string, unknown>[]
@@ -70,7 +70,7 @@ export const campaigns = pgTable(
     isMock: boolean("is_mock").notNull().default(false),
     dailyBudget: numeric("daily_budget", { precision: 12, scale: 2 }),
     lifetimeBudget: numeric("lifetime_budget", { precision: 12, scale: 2 }),
-    currency: text("currency").notNull().default("USD"),
+    currency: text("currency").notNull().default("EUR"),
     startAt: timestamp("start_at", { withTimezone: true }),
     endAt: timestamp("end_at", { withTimezone: true }),
     externalResponse: jsonb("external_response").$type<Record<string, unknown>>(),

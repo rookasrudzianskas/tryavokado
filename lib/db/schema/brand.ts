@@ -118,7 +118,7 @@ export const advertisingBriefs = pgTable(
     primaryGoal: goalEnum("primary_goal"),
     // Structured AdvertisingBrief (business info, budget, goals, prefs).
     data: jsonb("data").$type<Record<string, unknown>>().notNull().default({}),
-    currency: text("currency").notNull().default("USD"),
+    currency: text("currency").notNull().default("EUR"),
     status: text("status").notNull().default("draft"),
     completedAt: timestamp("completed_at", { withTimezone: true }),
     ...timestamps,

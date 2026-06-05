@@ -101,8 +101,28 @@ export const PLANS = [
 
 export type PlanId = (typeof PLANS)[number]["id"];
 
-export const SUPPORTED_CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD"] as const;
+export const SUPPORTED_CURRENCIES = ["EUR", "USD", "GBP", "CAD", "AUD"] as const;
 export type Currency = (typeof SUPPORTED_CURRENCIES)[number];
+
+/** Avokado bills in euros by default. */
+export const DEFAULT_CURRENCY: Currency = "EUR";
+
+/**
+ * Connecting a human specialist is a one-time paid handoff. Priced in EUR.
+ */
+export const HUMAN_HELP_PRICE_EUR = 500;
+export const HUMAN_HELP = {
+  priceEur: HUMAN_HELP_PRICE_EUR,
+  name: "Talk to a human specialist",
+  blurb:
+    "A senior Avokado ad specialist reviews your account, joins a live chat, and helps you ship — reviewing everything the AI has done so far.",
+  includes: [
+    "A specialist assigned to your workspace",
+    "Full review of AI-generated brand, strategy, and campaigns",
+    "Live chat and async messaging",
+    "Hands-on help launching your first campaign safely",
+  ],
+} as const;
 
 /** Safety rails applied by the policy engine regardless of user settings. */
 export const SAFETY_LIMITS = {

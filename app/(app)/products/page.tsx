@@ -18,7 +18,7 @@ export const metadata: Metadata = { title: "Products" };
 function priceLabel(min: string | null, max: string | null, currency?: string | null) {
   const lo = Number(min ?? 0);
   const hi = Number(max ?? 0);
-  const cur = currency ?? "USD";
+  const cur = currency ?? "EUR";
   if (!lo && !hi) return "—";
   if (lo === hi) return formatCurrency(lo, cur);
   return `${formatCurrency(lo, cur)} – ${formatCurrency(hi, cur)}`;

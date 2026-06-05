@@ -35,14 +35,14 @@ describe("utils: slugify", () => {
 });
 
 describe("utils: formatCurrency", () => {
-  it("formats a whole-dollar value with a $ and no decimals", () => {
+  it("formats a whole value in euros by default with no decimals", () => {
     const result = formatCurrency(49);
-    expect(result).toContain("$49");
+    expect(result).toContain("€49");
     expect(result).not.toContain(".00");
   });
 
   it("includes cents for fractional values", () => {
-    expect(formatCurrency(49.5)).toContain("$49.50");
+    expect(formatCurrency(49.5)).toContain("€49.50");
   });
 
   it("honours other supported currencies", () => {
