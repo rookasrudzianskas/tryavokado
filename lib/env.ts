@@ -24,9 +24,11 @@ const envSchema = z.object({
 
   // --- Core (required) ---
   // 32-byte base64 key used to encrypt third-party tokens (e.g. Meta) at rest.
-  ENCRYPTION_KEY: z
-    .string()
-    .min(16, "ENCRYPTION_KEY must be a 32-byte base64 string"),
+  // Optional so builds/cold-starts never crash; crypto guards at point-of-use.
+  ENCRYPTION_KEY: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+    z.string().min(16, "ENCRYPTION_KEY must be at least 16 characters").optional(),
+  ),
 
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   AVOKADO_MODE: z.enum(["mock", "live"]).default("mock"),
@@ -109,16 +111,18 @@ function parseEnv(): ParseResult {
 
 const result = parseEnv();
 
-if (!result.ok) {
-  // Fail fast and loudly on the server. Never print the offending values.
-  const message =
-    "Invalid environment configuration:\n" +
-    result.issues.map((i) => `  - ${i}`).join("\n") +
-    "\nSee .env.example and docs/local-development.md.";
-  throw new Error(message);
+// Never throw at import time — that would crash production builds and serverless
+// cold starts when optional config is absent. Warn instead; each consumer guards
+// on the specific value it needs (e.g. crypto requires ENCRYPTION_KEY at runtime).
+if (!result.ok && typeof console !== "undefined") {
+  console.warn(
+    "[env] Some environment configuration is missing or invalid:\n" +
+      result.issues.map((i) => `  - ${i}`).join("\n") +
+      "\nSee .env.example and docs/local-development.md.",
+  );
 }
 
-export const env: Env = result.env;
+export const env: Env = result.ok ? result.env : envSchema.parse({});
 
 export const isMockMode = env.AVOKADO_MODE === "mock";
 export const isProd = env.NODE_ENV === "production";

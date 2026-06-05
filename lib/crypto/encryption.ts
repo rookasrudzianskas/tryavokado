@@ -28,6 +28,11 @@ let cachedKey: Buffer | null = null;
 function getKey(): Buffer {
   if (cachedKey) return cachedKey;
   const raw = env.ENCRYPTION_KEY;
+  if (!raw) {
+    throw new Error(
+      "ENCRYPTION_KEY is not set — cannot encrypt or decrypt secrets. Add it to your environment.",
+    );
+  }
   let key: Buffer;
   try {
     const decoded = Buffer.from(raw, "base64");
