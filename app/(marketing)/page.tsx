@@ -20,6 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/marketing/reveal";
 import { HeroBackdrop } from "@/components/marketing/hero-backdrop";
 import { SpotlightCard } from "@/components/marketing/spotlight-card";
+import { Magnetic } from "@/components/marketing/magnetic";
+import { GradientBorder } from "@/components/marketing/gradient-border";
 import { ProductPreview } from "@/components/marketing/product-preview";
 import { PLANS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
@@ -107,14 +109,18 @@ export default function HomePage() {
               with safety and approval controls at every step.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg">
-                <Link href="/register">
-                  Start free <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/how-it-works">See how it works</Link>
-              </Button>
+              <Magnetic>
+                <Button asChild size="lg">
+                  <Link href="/register">
+                    Start free <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              </Magnetic>
+              <Magnetic>
+                <Button asChild size="lg" variant="outline">
+                  <Link href="/how-it-works">See how it works</Link>
+                </Button>
+              </Magnetic>
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
               {["Draft-first by default", "Approval required to spend", "Tokens encrypted at rest"].map(
@@ -311,30 +317,30 @@ export default function HomePage() {
 
       {/* Final CTA */}
       <section className="mx-auto max-w-6xl px-5 py-20">
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-card px-8 py-16 text-center sm:px-16">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10 bg-dots mask-radial opacity-60"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-brand/60 to-transparent"
-          />
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Build your first campaign in demo mode today.
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-            No store, no ad account, no risk. Explore the full product, then
-            connect the real thing when you’re ready.
-          </p>
-          <div className="mt-8 flex justify-center">
-            <Button asChild size="lg">
-              <Link href="/register">
-                Create your workspace <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+        <GradientBorder>
+          <div className="relative overflow-hidden px-8 py-16 text-center sm:px-16">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 bg-dots mask-radial opacity-50"
+            />
+            <h2 className="relative font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              Build your first campaign in demo mode today.
+            </h2>
+            <p className="relative mx-auto mt-3 max-w-xl text-muted-foreground">
+              No store, no ad account, no risk. Explore the full product, then
+              connect the real thing when you’re ready.
+            </p>
+            <div className="relative mt-8 flex justify-center">
+              <Magnetic>
+                <Button asChild size="lg">
+                  <Link href="/register">
+                    Create your workspace <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              </Magnetic>
+            </div>
           </div>
-        </div>
+        </GradientBorder>
       </section>
     </>
   );

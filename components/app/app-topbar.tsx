@@ -20,6 +20,7 @@ import { AppNav } from "./app-nav";
 import { CommandMenu } from "./command-menu";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 import { UserMenu } from "./user-menu";
+import { ThemeToggle } from "./theme-toggle";
 
 export function AppTopbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -48,6 +49,8 @@ export function AppTopbar() {
       <div className="flex flex-1 justify-center px-2 sm:justify-start">
         <CommandMenu />
       </div>
+
+      <ThemeToggle />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
