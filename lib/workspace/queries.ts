@@ -1,8 +1,9 @@
 import "server-only";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   subscriptions,
+  users,
   workspaceMembers,
   workspaces,
 } from "@/lib/db/schema";
@@ -73,6 +74,22 @@ export async function getWorkspaceById(id: string) {
     .where(and(eq(workspaces.id, id), isNull(workspaces.deletedAt)))
     .limit(1);
   return row ?? null;
+}
+
+export async function getWorkspaceMembers(workspaceId: string) {
+  return db
+    .select({
+      userId: users.id,
+      name: users.name,
+      email: users.email,
+      image: users.image,
+      role: workspaceMembers.role,
+      joinedAt: workspaceMembers.createdAt,
+    })
+    .from(workspaceMembers)
+    .innerJoin(users, eq(workspaceMembers.userId, users.id))
+    .where(eq(workspaceMembers.workspaceId, workspaceId))
+    .orderBy(asc(workspaceMembers.createdAt));
 }
 
 export async function getWorkspaceSubscription(workspaceId: string) {

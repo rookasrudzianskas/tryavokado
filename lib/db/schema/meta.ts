@@ -1,6 +1,5 @@
 import {
   boolean,
-  index,
   jsonb,
   pgTable,
   text,

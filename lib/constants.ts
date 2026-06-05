@@ -54,6 +54,7 @@ export const PLANS = [
     id: "starter",
     name: "Starter",
     priceMonthly: 49,
+    highlighted: false,
     blurb: "For founders running their first Meta campaigns.",
     features: [
       "1 connected store",
@@ -84,6 +85,7 @@ export const PLANS = [
     id: "scale",
     name: "Scale",
     priceMonthly: 399,
+    highlighted: false,
     blurb: "For agencies and multi-brand operators.",
     features: [
       "Unlimited stores & workspaces",

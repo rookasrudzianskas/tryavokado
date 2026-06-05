@@ -17,6 +17,13 @@ export const auth = betterAuth({
   appName: "Avokado",
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL,
+  // Trust localhost on common dev ports so auth works regardless of which port
+  // Next selects. Production relies on BETTER_AUTH_URL / NEXT_PUBLIC_APP_URL.
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+  ],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
