@@ -45,24 +45,34 @@ Environment provisioned for development:
 
 ## 4. Phase status
 
-- [x] **Phase 1 — Foundation** *(in progress, core complete & verified running)*
+- [x] **Phase 1 — Foundation** *(complete & verified running)*
   - [x] Project scaffold, TypeScript strict, Tailwind v4, ESLint/Prettier
   - [x] Env validation + `.env.example` + startup checks + secret utilities
   - [x] Full Drizzle schema (49 tables) + migration applied to Postgres
   - [x] Design system tokens + core UI primitives (~20 components)
-  - [x] Better Auth (email/password + Google) wired to Drizzle
+  - [x] Better Auth (email/password + Google) wired to Drizzle — verified creating
+        real users/sessions
   - [x] Workspace multi-tenancy + RBAC helpers + audit log
-  - [x] Standardized error taxonomy
-  - [x] Marketing site shell + premium homepage (verified rendering)
-  - [ ] Auth pages (login / register), onboarding wizard, app shell
-  - [ ] Mock-mode adapters + policy engine + testing foundation
-- [ ] **Phase 2 — Onboarding & store connections** (Shopify / WooCommerce / website)
+  - [x] Standardized error taxonomy; SSRF/URL safety; rate limiter; policy engine
+  - [x] Marketing site (all 9 pages) + premium homepage (verified rendering)
+  - [x] Auth pages (login / register), onboarding wizard, app shell (verified flow)
+  - [x] Mock-mode adapters (Store/Meta/Vertex) + registry + demo dataset
+  - [x] Testing foundation — Vitest + 104 passing unit tests
+- [~] **Phase 2 — Onboarding & store connections**
+  - [x] Onboarding wizard with persisted progress
+  - [x] Typed Store adapter + mock; **connect demo store → product import** verified
+        (products/variants/collections persisted, audited)
+  - [x] Connection-management UI (status, demo badge, last-synced, reimport)
+  - [ ] Live Shopify OAuth / WooCommerce REST adapters (need credentials)
+  - [ ] Website inspection pipeline (SSRF-safe fetch → normalize → Vertex)
 - [ ] **Phase 3 — Brand intelligence** (Vertex adapter, brand book, PDF, versions)
-- [ ] **Phase 4 — Products & assets** (catalog, library, uploads, analysis)
+- [ ] **Phase 4 — Assets** (library, direct uploads, analysis)
 - [ ] **Phase 5 — Strategy & creative studio**
-- [ ] **Phase 6 — Meta connection & campaign drafts**
-- [ ] **Phase 7 — Analytics & recommendations**
+- [ ] **Phase 6 — Meta connection & campaign drafts** (mock Meta adapter ready)
+- [ ] **Phase 7 — Analytics & recommendations** (demo insights + policy engine ready)
 - [ ] **Phase 8 — Automations, billing, hardening**
+
+Legend: `[x]` done & verified · `[~]` partially done · `[ ]` not started.
 
 ## 5. What is real vs. mocked (kept current)
 
