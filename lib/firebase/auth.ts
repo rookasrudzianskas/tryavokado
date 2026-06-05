@@ -22,6 +22,14 @@ const FRIENDLY: Record<string, string> = {
     "Sign-in isn't enabled for this Firebase project yet. Enable Authentication and the Email/Password provider in the Firebase console (see docs/firebase-setup.md).",
   "auth/operation-not-allowed":
     "This sign-in method is disabled. Enable it under Authentication → Sign-in method in the Firebase console.",
+  // Deployment didn't get the Firebase web config (e.g. env vars not set on Vercel).
+  "auth/invalid-api-key":
+    "Authentication isn't configured on this deployment. Add the NEXT_PUBLIC_FIREBASE_* environment variables in your hosting project and redeploy.",
+  "auth/api-key-not-valid.-please-pass-a-valid-api-key.":
+    "Authentication isn't configured on this deployment. Add the NEXT_PUBLIC_FIREBASE_* environment variables in your hosting project and redeploy.",
+  // The current domain isn't whitelisted in Firebase Auth.
+  "auth/unauthorized-domain":
+    "This domain isn't authorized for sign-in. Add it in Firebase Console → Authentication → Settings → Authorized domains.",
 };
 
 export function friendlyAuthError(err: unknown): string {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
+import { AuthConfigBanner } from "@/components/auth/config-banner";
 
 const POINTS = [
   "Connect a store or inspect any website",
@@ -53,6 +54,7 @@ export default function AuthLayout({
               <Logo />
             </Link>
           </div>
+          <AuthConfigBanner />
           {children}
         </div>
       </div>
