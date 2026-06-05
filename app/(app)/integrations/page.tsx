@@ -12,10 +12,15 @@ import {
 } from "lucide-react";
 import { requireWorkspaceContext } from "@/lib/auth/session";
 import { integrations as integrationStatus, isMockMode } from "@/lib/env";
+import { listStores } from "@/lib/stores/queries";
 import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { DemoModePill } from "@/components/app/demo-mode-pill";
+import { DemoBadge } from "@/components/app/demo-badge";
+import { ConnectDemoStoreButton } from "@/components/integrations/connect-demo-store-button";
+import { formatRelativeTime } from "@/lib/utils";
+import type { EcommercePlatform } from "@/lib/constants";
 
 export const metadata: Metadata = { title: "Integrations" };
 
@@ -29,13 +34,18 @@ function StatusBadge({ status }: { status: Status }) {
 }
 
 export default async function IntegrationsPage() {
-  await requireWorkspaceContext();
+  const { workspace } = await requireWorkspaceContext();
+  const connectedStores = await listStores(workspace.id);
 
-  const stores = [
-    { name: "Shopify", icon: ShoppingBag, description: "Import products, collections, and orders via OAuth.", status: "not_connected" as Status },
-    { name: "WooCommerce", icon: Store, description: "Connect with store URL and REST API keys.", status: "not_connected" as Status },
-    { name: "Website inspection", icon: Globe, description: "Inspect any public store URL, compliantly.", status: "not_connected" as Status },
-    { name: "Meta", icon: Boxes, description: "Businesses, ad accounts, pages, pixels, and catalogs.", status: "not_connected" as Status },
+  const storePlatforms: {
+    platform: EcommercePlatform;
+    name: string;
+    icon: typeof ShoppingBag;
+    description: string;
+  }[] = [
+    { platform: "shopify", name: "Shopify", icon: ShoppingBag, description: "Import products, collections, and orders via OAuth." },
+    { platform: "woocommerce", name: "WooCommerce", icon: Store, description: "Connect with store URL and REST API keys." },
+    { platform: "website", name: "Website inspection", icon: Globe, description: "Inspect any public store URL, compliantly." },
   ];
 
   const services = [
@@ -60,28 +70,72 @@ export default async function IntegrationsPage() {
           Stores &amp; ad platforms
         </h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          {stores.map((item) => (
-            <Card key={item.name}>
-              <CardContent className="flex items-start gap-4 p-5">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <item.icon className="size-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-medium text-foreground">{item.name}</h3>
-                    <StatusBadge status={item.status} />
+          {storePlatforms.map((item) => {
+            const store = connectedStores.find(
+              (s) => s.platform === item.platform,
+            );
+            return (
+              <Card key={item.platform}>
+                <CardContent className="flex items-start gap-4 p-5">
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <item.icon className="size-5" />
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {item.description}
-                  </p>
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    Guided connection flow ships in onboarding. Until then this
-                    workspace uses labelled mock data.
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-medium text-foreground">{item.name}</h3>
+                      {store ? (
+                        <Badge variant="success">Connected</Badge>
+                      ) : (
+                        <Badge variant="muted">Not connected</Badge>
+                      )}
+                    </div>
+                    {store ? (
+                      <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                        <span className="truncate">{store.displayName}</span>
+                        {store.isMock && <DemoBadge />}
+                      </div>
+                    ) : (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {item.description}
+                      </p>
+                    )}
+                    {store?.lastSyncedAt && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Synced {formatRelativeTime(store.lastSyncedAt)}
+                      </p>
+                    )}
+                    <div className="mt-3">
+                      <ConnectDemoStoreButton
+                        platform={item.platform}
+                        connected={Boolean(store)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+
+          <Card>
+            <CardContent className="flex items-start gap-4 p-5">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Boxes className="size-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-medium text-foreground">Meta</h3>
+                  <StatusBadge status={isMockMode ? "mock" : "not_connected"} />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Businesses, ad accounts, pages, pixels, and catalogs.
+                </p>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  The Meta readiness check and draft-first campaign flow run on
+                  the labelled mock account in demo mode.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
