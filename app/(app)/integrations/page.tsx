@@ -1,6 +1,8 @@
 "use client";
+import Link from "next/link";
 import {
   Activity,
+  ArrowRight,
   Boxes,
   Brain,
   CreditCard,
@@ -14,6 +16,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useWorkspace } from "@/components/firebase/workspace-provider";
 import { listStores } from "@/lib/firebase/stores";
+import { getMetaConnection } from "@/lib/firebase/meta";
+import { Button } from "@/components/ui/button";
 import { publicEnv } from "@/lib/env-public";
 import { PageHeader } from "@/components/app/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +50,11 @@ const STORE_PLATFORMS: {
 
 export default function IntegrationsPage() {
   const { active } = useWorkspace();
+  const { data: meta } = useQuery({
+    queryKey: ["meta-conn", active?.id],
+    enabled: !!active,
+    queryFn: () => getMetaConnection(active!.id),
+  });
   const { data: stores, isLoading } = useQuery({
     queryKey: ["stores", active?.id],
     enabled: !!active,
@@ -122,15 +131,32 @@ export default function IntegrationsPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-medium text-foreground">Meta</h3>
-                  <StatusBadge status="mock" />
+                  {meta?.connected ? (
+                    <Badge variant="success">Connected</Badge>
+                  ) : (
+                    <StatusBadge status="not_connected" />
+                  )}
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Businesses, ad accounts, pages, pixels, and catalogs.
-                </p>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  The Meta readiness check and draft-first campaign flow run on
-                  the labelled mock account in demo mode.
-                </p>
+                {meta?.connected ? (
+                  <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                    <span className="truncate">
+                      Ad account ready · {meta.readinessScore ?? "—"}/100
+                    </span>
+                    <DemoBadge />
+                  </div>
+                ) : (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Businesses, ad accounts, pages, pixels, and catalogs.
+                  </p>
+                )}
+                <div className="mt-3">
+                  <Button asChild size="sm" variant={meta?.connected ? "outline" : "default"}>
+                    <Link href="/integrations/meta">
+                      {meta?.connected ? "Manage readiness" : "Connect Meta"}
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
