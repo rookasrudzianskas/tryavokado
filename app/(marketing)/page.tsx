@@ -18,6 +18,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/marketing/reveal";
+import { HeroBackdrop } from "@/components/marketing/hero-backdrop";
+import { SpotlightCard } from "@/components/marketing/spotlight-card";
 import { ProductPreview } from "@/components/marketing/product-preview";
 import { PLANS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
@@ -87,14 +89,7 @@ export default function HomePage() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 bg-grid mask-fade-b opacity-[0.5]"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-40 -z-10 h-96 bg-[radial-gradient(50%_50%_at_50%_0%,oklch(0.72_0.15_142/0.12),transparent)]"
-        />
+        <HeroBackdrop />
         <div className="mx-auto grid max-w-6xl gap-12 px-5 pb-16 pt-16 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:pt-24">
           <div>
             <Badge variant="outline" className="gap-1.5 rounded-full px-3 py-1">
@@ -143,7 +138,7 @@ export default function HomePage() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {PIPELINE.map((step, i) => (
               <Reveal key={step.title} delay={i * 0.06}>
-                <div className="group relative h-full rounded-xl border border-border bg-card p-5">
+                <div className="group relative h-full rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20">
                   <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <step.icon className="size-5" />
                   </div>
@@ -175,8 +170,8 @@ export default function HomePage() {
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature, i) => (
             <Reveal key={feature.title} delay={(i % 3) * 0.06}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6 transition-shadow hover:shadow-md">
-                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <SpotlightCard className="h-full p-6">
+                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand">
                   <feature.icon className="size-5" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-foreground">
@@ -185,7 +180,7 @@ export default function HomePage() {
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                   {feature.body}
                 </p>
-              </div>
+              </SpotlightCard>
             </Reveal>
           ))}
         </div>
@@ -222,7 +217,7 @@ export default function HomePage() {
               ].map((item) => (
                 <div
                   key={item.t}
-                  className="rounded-xl border border-border bg-card p-5"
+                  className="rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-foreground/20"
                 >
                   <item.icon className="size-5 text-primary" />
                   <h3 className="mt-3 text-sm font-semibold text-foreground">
@@ -254,10 +249,10 @@ export default function HomePage() {
             <Reveal key={plan.id} delay={i * 0.06}>
               <div
                 className={
-                  "flex h-full flex-col rounded-2xl border bg-card p-6 " +
+                  "flex h-full flex-col rounded-2xl border bg-card p-6 transition-all duration-300 hover:-translate-y-1 " +
                   (plan.highlighted
-                    ? "border-primary/40 shadow-md ring-1 ring-primary/20"
-                    : "border-border")
+                    ? "border-brand/50 ring-1 ring-brand/25"
+                    : "border-border hover:border-foreground/20")
                 }
               >
                 {plan.highlighted && (
