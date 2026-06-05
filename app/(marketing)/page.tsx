@@ -86,10 +86,14 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-grain">
+      <section className="relative overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-40 -z-10 h-80 bg-[radial-gradient(60%_60%_at_50%_0%,oklch(0.52_0.105_135/0.10),transparent)]"
+          className="pointer-events-none absolute inset-0 -z-10 bg-grid mask-fade-b opacity-[0.5]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-40 -z-10 h-96 bg-[radial-gradient(50%_50%_at_50%_0%,oklch(0.72_0.15_142/0.12),transparent)]"
         />
         <div className="mx-auto grid max-w-6xl gap-12 px-5 pb-16 pt-16 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:pt-24">
           <div>
@@ -97,9 +101,9 @@ export default function HomePage() {
               <Sparkles className="size-3 text-primary" />
               Creative OS for ecommerce advertising
             </Badge>
-            <h1 className="mt-5 text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 text-balance font-display text-5xl font-semibold leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
               Turn your store into{" "}
-              <span className="text-primary">Meta campaigns</span> that actually
+              <span className="text-brand">Meta campaigns</span> that actually
               fit your brand.
             </h1>
             <p className="mt-5 max-w-xl text-pretty text-lg text-muted-foreground">
@@ -312,20 +316,24 @@ export default function HomePage() {
 
       {/* Final CTA */}
       <section className="mx-auto max-w-6xl px-5 py-20">
-        <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-primary px-8 py-14 text-center text-primary-foreground sm:px-16">
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card px-8 py-16 text-center sm:px-16">
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_80%_at_50%_0%,oklch(1_0_0/0.14),transparent)]"
+            className="pointer-events-none absolute inset-0 -z-10 bg-dots mask-radial opacity-60"
           />
-          <h2 className="relative font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-brand/60 to-transparent"
+          />
+          <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Build your first campaign in demo mode today.
           </h2>
-          <p className="relative mx-auto mt-3 max-w-xl text-primary-foreground/85">
+          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
             No store, no ad account, no risk. Explore the full product, then
             connect the real thing when you’re ready.
           </p>
-          <div className="relative mt-8 flex justify-center">
-            <Button asChild size="lg" variant="secondary">
+          <div className="mt-8 flex justify-center">
+            <Button asChild size="lg">
               <Link href="/register">
                 Create your workspace <ArrowRight className="size-4" />
               </Link>
