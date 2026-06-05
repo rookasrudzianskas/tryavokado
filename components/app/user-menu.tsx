@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, Settings, LifeBuoy, User } from "lucide-react";
+import { LifeBuoy, LogOut, Settings, User } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -13,32 +13,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut } from "@/lib/auth/client";
+import { useAuth } from "@/components/firebase/auth-provider";
+import { signOutFirebase } from "@/lib/firebase/auth";
 import { initialsFromName } from "@/lib/utils";
 
-export function UserMenu({
-  name,
-  email,
-  image,
-}: {
-  name: string;
-  email: string;
-  image?: string | null;
-}) {
+export function UserMenu() {
   const router = useRouter();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+
+  const name = user?.displayName ?? user?.email?.split("@")[0] ?? "Account";
+  const email = user?.email ?? "";
 
   async function handleSignOut() {
     setLoading(true);
-    await signOut({
-      fetchOptions: {
-        onSuccess: () => router.push("/login"),
-        onError: () => {
-          toast.error("Could not sign out. Please try again.");
-          setLoading(false);
-        },
-      },
-    });
+    try {
+      await signOutFirebase();
+      router.push("/login");
+    } catch {
+      toast.error("Could not sign out. Please try again.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -48,7 +43,7 @@ export function UserMenu({
         aria-label="Open user menu"
       >
         <Avatar className="size-8">
-          {image && <AvatarImage src={image} alt={name} />}
+          {user?.photoURL && <AvatarImage src={user.photoURL} alt={name} />}
           <AvatarFallback>{initialsFromName(name)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -71,8 +66,8 @@ export function UserMenu({
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/how-it-works">
-            <LifeBuoy className="size-4" /> Help & guides
+          <Link href="/help">
+            <LifeBuoy className="size-4" /> Help &amp; human support
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireUser } from "@/lib/auth/session";
 import { Logo } from "@/components/brand/logo";
 import { Card } from "@/components/ui/card";
 import { CreateWorkspaceForm } from "@/components/onboarding/create-workspace-form";
@@ -10,9 +9,7 @@ export const metadata: Metadata = { title: "Create your workspace" };
 
 const STEPS = ["Create workspace", "Connect store", "Build brand"];
 
-export default async function OnboardingPage() {
-  await requireUser();
-
+export default function OnboardingPage() {
   return (
     <div className="flex min-h-dvh flex-col bg-grain">
       <header className="mx-auto flex w-full max-w-2xl items-center justify-between px-5 py-6">

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { signIn } from "@/lib/auth/client";
+import { signInEmail, friendlyAuthError } from "@/lib/firebase/auth";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,16 +23,12 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
 
   async function onSubmit(values: LoginInput) {
     setServerError(null);
-    await signIn.email(
-      { email: values.email, password: values.password },
-      {
-        onSuccess: () => router.push("/overview"),
-        onError: (ctx) =>
-          setServerError(
-            ctx.error.message || "Invalid email or password. Please try again.",
-          ),
-      },
-    );
+    try {
+      await signInEmail({ email: values.email, password: values.password });
+      router.push("/overview");
+    } catch (err) {
+      setServerError(friendlyAuthError(err));
+    }
   }
 
   return (
@@ -65,9 +61,7 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
         </div>
 
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-          </div>
+          <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"

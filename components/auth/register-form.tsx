@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { signUp } from "@/lib/auth/client";
+import { signUpEmail, friendlyAuthError } from "@/lib/firebase/auth";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,16 +23,16 @@ export function RegisterForm({ googleEnabled }: { googleEnabled: boolean }) {
 
   async function onSubmit(values: RegisterInput) {
     setServerError(null);
-    await signUp.email(
-      { name: values.name, email: values.email, password: values.password },
-      {
-        onSuccess: () => router.push("/onboarding"),
-        onError: (ctx) =>
-          setServerError(
-            ctx.error.message || "Could not create your account. Try again.",
-          ),
-      },
-    );
+    try {
+      await signUpEmail({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
+      router.push("/onboarding");
+    } catch (err) {
+      setServerError(friendlyAuthError(err));
+    }
   }
 
   return (

@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// Avokado Firebase Storage rules. Asset uploads live under workspace folders.
+// Deploy with: firebase deploy --only storage
+// NOTE: Storage rules cannot read Firestore membership, so this restricts to
+// authenticated users; per-workspace isolation is enforced by app logic +
+// (recommended) custom auth claims. Harden before production.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /workspaces/{workspaceId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.resource.size < 200 * 1024 * 1024; // 200 MB cap
+    }
+  }
+}

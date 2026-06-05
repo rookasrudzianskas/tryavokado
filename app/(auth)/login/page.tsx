@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
-import { getSession } from "@/lib/auth/session";
-import { integrations } from "@/lib/env";
 
 export const metadata: Metadata = { title: "Log in" };
 
-export default async function LoginPage() {
-  const session = await getSession();
-  if (session?.user) redirect("/overview");
-
+export default function LoginPage() {
   return (
     <div>
       <div className="mb-6 space-y-1.5">
@@ -20,7 +14,7 @@ export default async function LoginPage() {
           Log in to your Avokado workspace.
         </p>
       </div>
-      <LoginForm googleEnabled={integrations.googleAuth} />
+      <LoginForm googleEnabled />
     </div>
   );
 }

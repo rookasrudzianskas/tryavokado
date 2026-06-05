@@ -1,9 +1,11 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Globe, Loader2, ShoppingBag, Store } from "lucide-react";
-import { createWorkspaceAction } from "@/app/onboarding/actions";
+import { useAuth } from "@/components/firebase/auth-provider";
+import { createWorkspace } from "@/lib/firebase/data";
 import {
   createWorkspaceSchema,
   type CreateWorkspaceFormInput,
@@ -26,6 +28,8 @@ const PLATFORMS: {
 ];
 
 export function CreateWorkspaceForm() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
   const {
@@ -42,9 +46,23 @@ export function CreateWorkspaceForm() {
 
   function onSubmit(values: CreateWorkspaceFormInput) {
     setServerError(null);
+    if (!user) {
+      router.push("/login");
+      return;
+    }
     startTransition(async () => {
-      const res = await createWorkspaceAction(values);
-      if (res && !res.ok) setServerError(res.error);
+      try {
+        await createWorkspace({
+          uid: user.uid,
+          actorName: user.displayName ?? user.email ?? "Owner",
+          name: values.companyName,
+          companyName: values.companyName,
+          primaryPlatform: values.primaryPlatform,
+        });
+        router.push("/overview");
+      } catch {
+        setServerError("Could not create your workspace. Please try again.");
+      }
     });
   }
 
@@ -121,7 +139,12 @@ export function CreateWorkspaceForm() {
         </p>
       )}
 
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full"
+        disabled={pending || authLoading}
+      >
         {pending && <Loader2 className="size-4 animate-spin" />}
         Create workspace
       </Button>

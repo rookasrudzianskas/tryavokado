@@ -1,32 +1,32 @@
-import type { Metadata } from "next";
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { Boxes, Star } from "lucide-react";
-import { requireWorkspaceContext } from "@/lib/auth/session";
-import { listProducts } from "@/lib/stores/queries";
-import { isMockMode } from "@/lib/env";
+import { useQuery } from "@tanstack/react-query";
+import { useWorkspace } from "@/components/firebase/workspace-provider";
+import { listProducts } from "@/lib/firebase/stores";
 import { PageHeader } from "@/components/app/page-header";
 import { EmptyState } from "@/components/app/empty-state";
 import { DemoBadge } from "@/components/app/demo-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Products" };
-
-function priceLabel(min: string | null, max: string | null, currency?: string | null) {
-  const lo = Number(min ?? 0);
-  const hi = Number(max ?? 0);
-  const cur = currency ?? "EUR";
-  if (!lo && !hi) return "—";
-  if (lo === hi) return formatCurrency(lo, cur);
-  return `${formatCurrency(lo, cur)} – ${formatCurrency(hi, cur)}`;
+function priceLabel(min: number, max: number, currency: string) {
+  if (!min && !max) return "—";
+  if (min === max) return formatCurrency(min, currency);
+  return `${formatCurrency(min, currency)} – ${formatCurrency(max, currency)}`;
 }
 
-export default async function ProductsPage() {
-  const { workspace } = await requireWorkspaceContext();
-  const items = await listProducts(workspace.id);
+export default function ProductsPage() {
+  const { active } = useWorkspace();
+  const { data: items, isLoading } = useQuery({
+    queryKey: ["products", active?.id],
+    enabled: !!active,
+    queryFn: () => listProducts(active!.id),
+  });
 
   return (
     <>
@@ -34,10 +34,16 @@ export default async function ProductsPage() {
         title="Products"
         description="Products imported from your connected store, ready to advertise."
       >
-        {items.length > 0 && isMockMode && <DemoBadge />}
+        {items && items.length > 0 && <DemoBadge />}
       </PageHeader>
 
-      {items.length === 0 ? (
+      {isLoading ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-72 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : !items || items.length === 0 ? (
         <EmptyState
           icon={Boxes}
           title="No products yet"
@@ -50,9 +56,7 @@ export default async function ProductsPage() {
         />
       ) : (
         <>
-          <p className="text-sm text-muted-foreground">
-            {items.length} products
-          </p>
+          <p className="text-sm text-muted-foreground">{items.length} products</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((product) => (
               <Card key={product.id} className="overflow-hidden p-0">
@@ -88,7 +92,7 @@ export default async function ProductsPage() {
                   <p className="line-clamp-2 text-sm text-muted-foreground">
                     {product.description}
                   </p>
-                  {product.tags && product.tags.length > 0 && (
+                  {product.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {product.tags.slice(0, 3).map((tag) => (
                         <Badge key={tag} variant="muted">

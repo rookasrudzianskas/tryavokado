@@ -3,6 +3,7 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { FirebaseAuthProvider } from "@/components/firebase/auth-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -26,7 +27,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         enableSystem={false}
         disableTransitionOnChange
       >
-        <TooltipProvider delayDuration={150}>{children}</TooltipProvider>
+        <FirebaseAuthProvider>
+          <TooltipProvider delayDuration={150}>{children}</TooltipProvider>
+        </FirebaseAuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

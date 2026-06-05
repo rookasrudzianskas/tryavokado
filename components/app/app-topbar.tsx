@@ -18,23 +18,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AppNav } from "./app-nav";
 import { CommandMenu } from "./command-menu";
-import { WorkspaceSwitcher, type WorkspaceOption } from "./workspace-switcher";
+import { WorkspaceSwitcher } from "./workspace-switcher";
 import { UserMenu } from "./user-menu";
 
-export function AppTopbar({
-  workspaces,
-  activeSlug,
-  user,
-}: {
-  workspaces: WorkspaceOption[];
-  activeSlug: string;
-  user: { name: string; email: string; image?: string | null };
-}) {
+export function AppTopbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-lg">
-      {/* Mobile menu */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetTrigger asChild className="lg:hidden">
           <Button variant="ghost" size="icon" aria-label="Open navigation">
@@ -51,7 +42,7 @@ export function AppTopbar({
       </Sheet>
 
       <div className="hidden lg:block">
-        <WorkspaceSwitcher workspaces={workspaces} activeSlug={activeSlug} />
+        <WorkspaceSwitcher />
       </div>
 
       <div className="flex flex-1 justify-center px-2 sm:justify-start">
@@ -60,12 +51,7 @@ export function AppTopbar({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative"
-            aria-label="Notifications"
-          >
+          <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
             <Bell />
           </Button>
         </DropdownMenuTrigger>
@@ -77,7 +63,7 @@ export function AppTopbar({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <UserMenu name={user.name} email={user.email} image={user.image} />
+      <UserMenu />
     </header>
   );
 }
