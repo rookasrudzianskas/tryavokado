@@ -23,12 +23,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
   // --- Core (required) ---
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
-  DATABASE_URL_TEST: optionalString,
-  BETTER_AUTH_SECRET: z
-    .string()
-    .min(16, "BETTER_AUTH_SECRET must be at least 16 characters"),
-  BETTER_AUTH_URL: optionalString,
+  // 32-byte base64 key used to encrypt third-party tokens (e.g. Meta) at rest.
   ENCRYPTION_KEY: z
     .string()
     .min(16, "ENCRYPTION_KEY must be a 32-byte base64 string"),
@@ -37,9 +32,8 @@ const envSchema = z.object({
   AVOKADO_MODE: z.enum(["mock", "live"]).default("mock"),
   NEXT_PUBLIC_AVOKADO_MODE: z.enum(["mock", "live"]).default("mock"),
 
-  // --- Google sign-in (OAuth, distinct from Vertex service-account auth) ---
-  GOOGLE_CLIENT_ID: optionalString,
-  GOOGLE_CLIENT_SECRET: optionalString,
+  // --- Firebase Admin (server; needs a tryavokado-a4ead service account) ---
+  FIREBASE_ADMIN_PROJECT_ID: optionalString,
 
   // --- Google Vertex AI ---
   GOOGLE_CLOUD_PROJECT: optionalString,
@@ -131,7 +125,7 @@ export const isProd = env.NODE_ENV === "production";
 
 /** Per-integration configuration status — drives mock vs. live adapter choice. */
 export const integrations = {
-  googleAuth: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+  firebaseAdmin: Boolean(env.FIREBASE_ADMIN_PROJECT_ID && env.GOOGLE_APPLICATION_CREDENTIALS),
   vertex: Boolean(env.GOOGLE_CLOUD_PROJECT),
   shopify: Boolean(env.SHOPIFY_API_KEY && env.SHOPIFY_API_SECRET),
   meta: Boolean(env.META_APP_ID && env.META_APP_SECRET),
