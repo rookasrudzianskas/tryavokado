@@ -1,4 +1,12 @@
-import type { BrandPreview, PaletteSwatch, SiteInspection } from "./types";
+import type {
+  AdPlan,
+  AdStrategy,
+  BrandPreview,
+  CampaignPlan,
+  CreativeConcept,
+  PaletteSwatch,
+  SiteInspection,
+} from "./types";
 
 /* ------------------------------- color helpers ----------------------------- */
 
@@ -141,4 +149,95 @@ export function buildBrandPreview(insp: SiteInspection): BrandPreview {
     ogImage: insp.ogImage,
     source: "heuristic",
   };
+}
+
+/* ------------------------------ full ad plan ------------------------------- */
+
+function buildStrategy(brand: BrandPreview): AdStrategy {
+  const vp = brand.valueProps;
+  return {
+    objective: "Sales — new-customer acquisition",
+    angles: [
+      {
+        title: "Why people choose " + brand.companyName,
+        hook: brand.tagline,
+        audience: "Cold prospects who resemble your best buyers",
+      },
+      {
+        title: "Lead with the offer",
+        hook: vp[0] ? `${vp[0]} — and a reason to buy today.` : "A reason to buy today.",
+        audience: "Engaged shoppers and recent site visitors",
+      },
+      {
+        title: "Earn trust with proof",
+        hook: `Real customers, real results from ${brand.companyName}.`,
+        audience: "Lookalikes of your purchasers",
+      },
+    ],
+    audiences: brand.audience,
+    dailyBudget: 30,
+    currency: "EUR",
+    testingPlan:
+      "Start with 3 concepts at a small daily budget. After enough data, pause the weakest and shift budget to the winners — only with your approval.",
+  };
+}
+
+function buildCreatives(brand: BrandPreview): CreativeConcept[] {
+  const [vp1, vp2] = brand.valueProps;
+  return [
+    {
+      name: "Value-led prospecting",
+      angle: "Why people choose " + brand.companyName,
+      format: "Single image / video",
+      primaryText: `${brand.tagline} ${vp1 ? vp1 + ". " : ""}See why customers keep coming back to ${brand.companyName}.`,
+      headline: vp1 ? vp1 : `Meet ${brand.companyName}`,
+      description: `Discover ${brand.companyName}.`,
+      cta: "Shop Now",
+    },
+    {
+      name: "Offer / first-order",
+      angle: "Lead with the offer",
+      format: "Single image",
+      primaryText: `Ready to try ${brand.companyName}? ${vp2 ?? vp1 ?? "Loved by our customers"}. Tap to shop today.`,
+      headline: `Shop ${brand.companyName}`,
+      description: "Limited-time welcome offer.",
+      cta: "Shop Now",
+    },
+    {
+      name: "Social proof / UGC",
+      angle: "Earn trust with proof",
+      format: "UGC video",
+      primaryText: `“${brand.tagline}” — join the customers who made the switch to ${brand.companyName}.`,
+      headline: `Real results from ${brand.companyName}`,
+      description: "What our customers say.",
+      cta: "Learn More",
+    },
+  ];
+}
+
+function buildCampaign(brand: BrandPreview, strategy: AdStrategy): CampaignPlan {
+  return {
+    name: `${brand.companyName} — Prospecting`,
+    objective: strategy.objective,
+    status: "draft",
+    dailyBudget: strategy.dailyBudget,
+    currency: strategy.currency,
+    adSets: [
+      { name: "Broad", audience: "Advantage+ broad targeting", optimization: "Purchase", ads: 3 },
+      { name: "Interests", audience: "Category & competitor interests", optimization: "Purchase", ads: 3 },
+      { name: "Lookalike 1%", audience: "Lookalike of past purchasers", optimization: "Purchase", ads: 2 },
+    ],
+  };
+}
+
+/**
+ * Build the full, automatically-generated advertising plan from a brand preview.
+ * Deterministic for the no-login demo; the in-app version regenerates each stage
+ * with Vertex AI and ties it to your real products and Meta account.
+ */
+export function buildAdPlan(brand: BrandPreview): AdPlan {
+  const strategy = buildStrategy(brand);
+  const creatives = buildCreatives(brand);
+  const campaign = buildCampaign(brand, strategy);
+  return { brand, strategy, creatives, campaign };
 }

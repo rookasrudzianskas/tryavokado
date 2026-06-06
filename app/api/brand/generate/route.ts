@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { inspectSite } from "@/lib/brand/inspect";
-import { buildBrandPreview } from "@/lib/brand/generate";
+import { buildAdPlan, buildBrandPreview } from "@/lib/brand/generate";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { toErrorResponse } from "@/lib/errors";
 
@@ -35,8 +35,9 @@ export async function POST(request: Request) {
 
   try {
     const inspection = await inspectSite(body.url);
-    const preview = buildBrandPreview(inspection);
-    return NextResponse.json({ preview });
+    const brand = buildBrandPreview(inspection);
+    const plan = buildAdPlan(brand);
+    return NextResponse.json({ plan });
   } catch (err) {
     const e = toErrorResponse(err);
     return NextResponse.json({ error: e.message }, { status: e.httpStatus });
