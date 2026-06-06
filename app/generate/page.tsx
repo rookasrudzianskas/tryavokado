@@ -13,21 +13,18 @@ import {
   PauseCircle,
   RotateCcw,
   Sparkles,
-  Tag,
-  Target,
   TriangleAlert,
   UserRound,
   Users,
-  Wand2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
 import { Reveal } from "@/components/marketing/reveal";
+import { AdPreview } from "@/components/brand/ad-preview";
 import { formatCurrency } from "@/lib/utils";
 import { HUMAN_HELP } from "@/lib/constants";
-import type { AdPlan } from "@/lib/brand/types";
+import type { AdPlan, BrandPreview } from "@/lib/brand/types";
 
 const STEPS = [
   "Analyzing your store",
@@ -63,7 +60,7 @@ export default function GeneratePage() {
     const start = Date.now();
     const interval = setInterval(
       () => setStep((s) => Math.min(s + 1, STEPS.length - 1)),
-      720,
+      760,
     );
 
     (async () => {
@@ -75,7 +72,7 @@ export default function GeneratePage() {
         });
         const json = await res.json();
         const elapsed = Date.now() - start;
-        if (elapsed < 3600) await new Promise((r) => setTimeout(r, 3600 - elapsed));
+        if (elapsed < 3800) await new Promise((r) => setTimeout(r, 3800 - elapsed));
         clearInterval(interval);
         setStep(STEPS.length);
         if (res.ok && json.plan) {
@@ -101,6 +98,7 @@ export default function GeneratePage() {
     }
   })();
 
+  /* --------------------------------- error --------------------------------- */
   if (status === "error") {
     return (
       <div className="mx-auto max-w-xl px-5 py-24 text-center">
@@ -125,22 +123,30 @@ export default function GeneratePage() {
     );
   }
 
+  /* -------------------------------- running -------------------------------- */
   if (status === "running") {
+    const pct = Math.round((step / STEPS.length) * 100);
     return (
-      <div className="mx-auto max-w-2xl px-5 py-24">
+      <div className="mx-auto max-w-xl px-5 py-24">
         <div className="text-center">
           <Badge variant="outline" className="gap-1.5">
             <Sparkles className="size-3 text-brand" /> Building your plan automatically
           </Badge>
           <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight text-foreground">
-            Building an ad plan for{" "}
+            Designing an ad plan for{" "}
             <span className="bg-gradient-to-r from-[oklch(0.84_0.16_142)] to-[oklch(0.72_0.13_215)] bg-clip-text text-transparent">
               {domain}
             </span>
           </h1>
         </div>
-        <Card className="mt-10 p-2">
-          <ol className="divide-y divide-border/60">
+        <Card className="mt-10 overflow-hidden p-0">
+          <div className="h-1 w-full bg-border/70">
+            <div
+              className="h-full bg-gradient-to-r from-[oklch(0.84_0.16_142)] to-[oklch(0.72_0.13_215)] transition-[width] duration-700 ease-out"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <ol className="divide-y divide-border/60 p-2">
             {STEPS.map((label, i) => {
               const done = i < step;
               const current = i === step;
@@ -178,126 +184,229 @@ export default function GeneratePage() {
     );
   }
 
+  /* --------------------------------- done ---------------------------------- */
   if (!plan) return null;
   const { brand, strategy, creatives, campaign } = plan;
+  const stats = [
+    `${strategy.angles.length} ad angles`,
+    `${creatives.length} ad concepts`,
+    `${campaign.adSets.length} ad sets`,
+    `${formatCurrency(strategy.dailyBudget, strategy.currency)}/day`,
+  ];
 
   return (
-    <div className="mx-auto max-w-5xl px-5 py-14">
+    <div className="mx-auto max-w-5xl px-5 py-12 sm:py-16">
+      {/* COVER */}
       <Reveal>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="gap-1.5">
-            <Sparkles className="size-3 text-brand" /> AI-built ad plan
-          </Badge>
-          <span className="text-sm text-muted-foreground">{brand.domain}</span>
-        </div>
-        <h1 className="mt-5 font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-          {brand.companyName}
-        </h1>
-        <p className="mt-3 max-w-2xl text-lg text-brand">{brand.tagline}</p>
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Stat>{strategy.angles.length} ad angles</Stat>
-          <Stat>{creatives.length} ad concepts</Stat>
-          <Stat>{campaign.adSets.length} ad sets</Stat>
-          <Stat>{formatCurrency(strategy.dailyBudget, strategy.currency)}/day suggested</Stat>
-          <Badge variant="warning" className="gap-1">
-            <PauseCircle className="size-3" /> Draft — approval required
-          </Badge>
-        </div>
+        <BrandCover brand={brand} domain={brand.domain} stats={stats} />
       </Reveal>
 
-      <Reveal delay={0.05}>
-        <Tabs defaultValue="brand" className="mt-10">
-          <TabsList className="h-auto flex-wrap">
-            <TabsTrigger value="brand" className="gap-1.5">
-              <Sparkles className="size-3.5" /> Brand book
-            </TabsTrigger>
-            <TabsTrigger value="strategy" className="gap-1.5">
-              <Target className="size-3.5" /> Strategy
-            </TabsTrigger>
-            <TabsTrigger value="creative" className="gap-1.5">
-              <Wand2 className="size-3.5" /> Creative
-            </TabsTrigger>
-            <TabsTrigger value="campaign" className="gap-1.5">
-              <Megaphone className="size-3.5" /> Campaign
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Brand */}
-          <TabsContent value="brand" className="grid gap-4 md:grid-cols-2">
-            <PlanCard icon={MessageSquare} title="Voice & tone">
-              <ChipRow items={brand.voice} />
-            </PlanCard>
-            <PlanCard icon={Users} title="Primary audiences">
-              <BulletList items={brand.audience} />
-            </PlanCard>
-            <PlanCard icon={Sparkles} title="Value props">
-              <BulletList items={brand.valueProps} check />
-            </PlanCard>
-            <PlanCard icon={Palette} title="Color palette">
-              <div className="flex flex-wrap gap-3">
-                {brand.palette.map((c) => (
-                  <div key={c.name} className="text-center">
-                    <div className="size-11 rounded-lg border border-border" style={{ backgroundColor: c.hex }} />
-                    <p className="mt-1.5 text-[11px] font-medium text-muted-foreground">{c.name}</p>
-                  </div>
-                ))}
+      <div className="mt-16 space-y-16 sm:mt-24 sm:space-y-24">
+        {/* IDENTITY */}
+        <section>
+          <Reveal>
+            <SectionHeader
+              kicker="Visual identity"
+              title="The brand, distilled"
+              description={brand.summary}
+            />
+          </Reveal>
+          <Reveal delay={0.05}>
+            <div className="mt-8 grid gap-5 lg:grid-cols-[1.3fr_1fr]">
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="flex items-center gap-2">
+                  <Palette className="size-4 text-brand" />
+                  <h3 className="font-semibold text-foreground">Color palette</h3>
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                  {brand.palette.map((c) => (
+                    <div
+                      key={c.name}
+                      className="overflow-hidden rounded-xl border border-border"
+                    >
+                      <div className="aspect-square" style={{ backgroundColor: c.hex }} />
+                      <div className="px-2.5 py-2">
+                        <p className="text-xs font-medium text-foreground">{c.name}</p>
+                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          {c.hex}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </PlanCard>
-            {brand.keywords.length > 0 && (
-              <PlanCard icon={Tag} title="Keywords" className="md:col-span-2">
-                <ChipRow items={brand.keywords} variant="outline" />
-              </PlanCard>
-            )}
-          </TabsContent>
-
-          {/* Strategy */}
-          <TabsContent value="strategy" className="space-y-4">
-            <PlanCard icon={Target} title="Objective">
-              <p className="text-sm text-foreground">{strategy.objective}</p>
-              <p className="mt-3 text-sm text-muted-foreground">{strategy.testingPlan}</p>
-            </PlanCard>
-            <div className="grid gap-4 md:grid-cols-3">
-              {strategy.angles.map((a) => (
-                <Card key={a.title} className="p-5">
-                  <p className="text-xs font-medium uppercase tracking-widest text-brand/90">Angle</p>
-                  <h3 className="mt-2 font-semibold text-foreground">{a.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">“{a.hook}”</p>
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    <span className="text-foreground/70">Audience:</span> {a.audience}
-                  </p>
-                </Card>
-              ))}
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="size-4 text-brand" />
+                  <h3 className="font-semibold text-foreground">Voice &amp; tone</h3>
+                </div>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {brand.voice.map((v) => (
+                    <span
+                      key={v}
+                      className="rounded-full border border-border bg-muted/40 px-4 py-2 text-sm font-medium text-foreground"
+                    >
+                      {v}
+                    </span>
+                  ))}
+                </div>
+                {brand.keywords.length > 0 && (
+                  <>
+                    <p className="mt-6 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Themes
+                    </p>
+                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                      {brand.keywords.map((k) => (
+                        <span
+                          key={k}
+                          className="rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground"
+                        >
+                          {k}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </TabsContent>
+          </Reveal>
+        </section>
 
-          {/* Creative */}
-          <TabsContent value="creative" className="grid gap-4 md:grid-cols-3">
-            {creatives.map((c) => (
-              <Card key={c.name} className="flex flex-col p-5">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-foreground">{c.name}</h3>
-                  <Badge variant="muted">{c.format}</Badge>
+        {/* POSITIONING */}
+        <section>
+          <Reveal>
+            <SectionHeader kicker="Positioning" title="Who we reach, and what we say" />
+          </Reveal>
+          <Reveal delay={0.05}>
+            <div className="mt-8 grid gap-5 md:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="flex items-center gap-2">
+                  <Users className="size-4 text-brand" />
+                  <h3 className="font-semibold text-foreground">Primary audiences</h3>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">{c.angle}</p>
-                <div className="mt-4 space-y-3 text-sm">
-                  <Field label="Primary text">{c.primaryText}</Field>
-                  <Field label="Headline">{c.headline}</Field>
+                <ul className="mt-4 space-y-3">
+                  {brand.audience.map((a) => (
+                    <li
+                      key={a}
+                      className="flex items-start gap-2.5 text-sm text-muted-foreground"
+                    >
+                      <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand" />
+                      {a}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="size-4 text-brand" />
+                  <h3 className="font-semibold text-foreground">Value props</h3>
                 </div>
-                <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3">
-                  <span className="text-xs text-muted-foreground">CTA</span>
-                  <Badge>{c.cta}</Badge>
+                <ul className="mt-4 space-y-3">
+                  {brand.valueProps.map((v) => (
+                    <li
+                      key={v}
+                      className="flex items-start gap-2.5 text-sm text-muted-foreground"
+                    >
+                      <Check className="mt-0.5 size-4 shrink-0 text-brand" />
+                      {v}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* CREATIVE — showpiece */}
+        <section>
+          <Reveal>
+            <SectionHeader
+              kicker="Ad creative"
+              title="Your ads, previewed in-feed"
+              description="Three concepts — copy and art direction generated automatically in your brand's colors. Edit anything once you save."
+            />
+          </Reveal>
+          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {creatives.map((c, i) => (
+              <Reveal key={c.name} delay={i * 0.06}>
+                <div className="space-y-3">
+                  <AdPreview concept={c} brand={brand} />
+                  <div className="px-1">
+                    <p className="text-xs font-medium uppercase tracking-wide text-brand/90">
+                      {c.name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{c.angle}</p>
+                  </div>
                 </div>
-              </Card>
+              </Reveal>
             ))}
-          </TabsContent>
+          </div>
+        </section>
 
-          {/* Campaign */}
-          <TabsContent value="campaign" className="space-y-4">
-            <Card className="p-6">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold text-foreground">{campaign.name}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{campaign.objective}</p>
+        {/* STRATEGY */}
+        <section>
+          <Reveal>
+            <SectionHeader kicker="Strategy" title="How we’ll win attention" />
+          </Reveal>
+          <Reveal delay={0.05}>
+            <div className="mt-8 rounded-2xl border border-border bg-card p-6">
+              <div className="grid gap-6 sm:grid-cols-3">
+                <Detail label="Objective" value={strategy.objective} />
+                <Detail
+                  label="Suggested budget"
+                  value={`${formatCurrency(strategy.dailyBudget, strategy.currency)} / day`}
+                />
+                <Detail
+                  label="Approach"
+                  value={`Test ${strategy.angles.length} angles, scale the winners`}
+                />
+              </div>
+              <p className="mt-5 border-t border-border/60 pt-4 text-sm text-muted-foreground">
+                {strategy.testingPlan}
+              </p>
+            </div>
+          </Reveal>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            {strategy.angles.map((a, i) => (
+              <Reveal key={a.title} delay={i * 0.05}>
+                <div className="h-full rounded-2xl border border-border bg-card p-6">
+                  <div className="flex size-7 items-center justify-center rounded-full border border-brand/30 bg-brand/10 text-xs font-semibold text-brand">
+                    {i + 1}
+                  </div>
+                  <h3 className="mt-4 font-semibold text-foreground">{a.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    &ldquo;{a.hook}&rdquo;
+                  </p>
+                  <div className="mt-4 border-t border-border/60 pt-3">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      Audience
+                    </p>
+                    <p className="mt-0.5 text-xs text-foreground/80">{a.audience}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* CAMPAIGN */}
+        <section>
+          <Reveal>
+            <SectionHeader
+              kicker="Campaign"
+              title="Ready to launch — as a draft"
+              description="Created paused in your Meta account on sign-up. Nothing goes live without your explicit approval."
+            />
+          </Reveal>
+          <Reveal delay={0.05}>
+            <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-card">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <Megaphone className="size-4 text-brand" />
+                  <div>
+                    <h3 className="font-semibold text-foreground">{campaign.name}</h3>
+                    <p className="text-xs text-muted-foreground">{campaign.objective}</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="warning" className="gap-1">
@@ -308,11 +417,11 @@ export default function GeneratePage() {
                   </Badge>
                 </div>
               </div>
-              <div className="mt-5 space-y-2">
+              <div className="divide-y divide-border">
                 {campaign.adSets.map((s) => (
                   <div
                     key={s.name}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border px-4 py-3"
+                    className="flex flex-wrap items-center justify-between gap-2 px-6 py-4"
                   >
                     <div>
                       <p className="text-sm font-medium text-foreground">{s.name}</p>
@@ -325,140 +434,155 @@ export default function GeneratePage() {
                   </div>
                 ))}
               </div>
-            </Card>
-            <p className="px-1 text-xs text-muted-foreground">
-              Nothing is launched. On sign-up these are created as paused/draft
-              entities in Meta and never go live without your explicit approval.
-            </p>
-          </TabsContent>
-        </Tabs>
-      </Reveal>
-
-      {/* CTA + human help add-on */}
-      <Reveal delay={0.1}>
-        <div className="mt-12 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-          <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-8">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-brand/60 to-transparent"
-            />
-            <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">
-              Save your plan & launch — automatically
-            </h2>
-            <p className="mt-2 max-w-md text-muted-foreground">
-              Create your workspace to refine every section with AI, connect your
-              store and Meta, and turn this into paused campaign drafts in a click.
-            </p>
-            <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
-              <Button asChild size="lg">
-                <Link href="/register">
-                  Save &amp; continue <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/">
-                  <RotateCcw className="size-4" /> Analyze another site
-                </Link>
-              </Button>
             </div>
-          </div>
+          </Reveal>
+        </section>
 
-          <div className="rounded-2xl border border-border bg-card/60 p-6">
-            <div className="flex items-center gap-2">
-              <UserRound className="size-4 text-brand" />
-              <h3 className="font-semibold text-foreground">Add human help</h3>
-              <Badge variant="muted" className="ml-auto">Optional</Badge>
+        {/* CTA + HUMAN HELP */}
+        <section>
+          <Reveal>
+            <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-8">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-brand/60 to-transparent"
+                />
+                <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+                  Save your plan &amp; launch — automatically
+                </h2>
+                <p className="mt-2 max-w-md text-muted-foreground">
+                  Create your workspace to refine every section with AI, connect
+                  your store and Meta, and turn this into paused campaign drafts in
+                  a click.
+                </p>
+                <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
+                  <Button asChild size="lg">
+                    <Link href="/register">
+                      Save &amp; continue <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline">
+                    <Link href="/">
+                      <RotateCcw className="size-4" /> Analyze another site
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-card/60 p-6">
+                <div className="flex items-center gap-2">
+                  <UserRound className="size-4 text-brand" />
+                  <h3 className="font-semibold text-foreground">Add human help</h3>
+                  <Badge variant="muted" className="ml-auto">
+                    Optional
+                  </Badge>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Everything above is automatic AI. If you&rsquo;d rather a senior
+                  specialist review your plan and launch it with you, add it on.
+                </p>
+                <p className="mt-4 font-display text-2xl font-semibold text-foreground">
+                  {formatCurrency(HUMAN_HELP.priceEur)}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    {" "}
+                    one-time
+                  </span>
+                </p>
+                <Button asChild variant="outline" className="mt-4 w-full">
+                  <Link href="/register">Add a specialist</Link>
+                </Button>
+              </div>
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Everything above is automatic AI. If you&rsquo;d rather a senior
-              specialist review your plan and launch it with you, add it on.
-            </p>
-            <p className="mt-4 font-display text-2xl font-semibold text-foreground">
-              {formatCurrency(HUMAN_HELP.priceEur)}
-              <span className="text-sm font-normal text-muted-foreground"> one-time</span>
-            </p>
-            <Button asChild variant="outline" className="mt-4 w-full">
-              <Link href="/register">Add a specialist</Link>
-            </Button>
-          </div>
+          </Reveal>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------- helpers --------------------------------- */
+
+function BrandCover({
+  brand,
+  domain,
+  stats,
+}: {
+  brand: BrandPreview;
+  domain: string;
+  stats: string[];
+}) {
+  const p0 = brand.palette[0]?.hex ?? "#3f7d44";
+  const p1 = brand.palette[1]?.hex ?? "#1f9d8a";
+  const p2 = brand.palette[2]?.hex ?? p1;
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-border">
+      <div
+        className="absolute inset-0"
+        style={{ background: `linear-gradient(135deg, ${p0} 0%, ${p1} 55%, ${p2} 100%)` }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(120% 90% at 12% 0%, rgba(255,255,255,0.30), transparent 55%)",
+        }}
+      />
+      <div className="absolute inset-0 bg-dots opacity-[0.14]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-black/10" />
+      <div className="relative p-7 sm:p-12">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+            <Sparkles className="size-3" /> AI brand book
+          </span>
+          <span className="text-sm text-white/75">{domain}</span>
         </div>
-      </Reveal>
+        <h1 className="mt-6 font-display text-5xl font-semibold leading-[0.95] tracking-tight text-white sm:text-7xl">
+          {brand.companyName}
+        </h1>
+        <p className="mt-5 max-w-xl text-lg text-white/85 sm:text-xl">{brand.tagline}</p>
+        <div className="mt-8 flex flex-wrap gap-2">
+          {stats.map((s) => (
+            <span
+              key={s}
+              className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
+            >
+              {s}
+            </span>
+          ))}
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/30 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+            <PauseCircle className="size-3" /> Draft — approval required
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
 
-function Stat({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground">
-      {children}
-    </span>
-  );
-}
-
-function PlanCard({
-  icon: Icon,
+function SectionHeader({
+  kicker,
   title,
-  className,
-  children,
+  description,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  kicker: string;
   title: string;
-  className?: string;
-  children: React.ReactNode;
+  description?: string;
 }) {
   return (
-    <Card className={"h-full " + (className ?? "")}>
-      <CardHeader className="flex-row items-center gap-2 pb-3">
-        <Icon className="size-4 text-brand" />
-        <CardTitle className="text-base">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-    </Card>
-  );
-}
-
-function ChipRow({
-  items,
-  variant = "muted",
-}: {
-  items: string[];
-  variant?: "muted" | "outline";
-}) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {items.map((i) => (
-        <Badge key={i} variant={variant}>
-          {i}
-        </Badge>
-      ))}
+    <div className="max-w-2xl">
+      <p className="text-xs font-medium uppercase tracking-widest text-brand">{kicker}</p>
+      <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+        {title}
+      </h2>
+      {description && <p className="mt-2 text-muted-foreground">{description}</p>}
     </div>
   );
 }
 
-function BulletList({ items, check }: { items: string[]; check?: boolean }) {
-  return (
-    <ul className="space-y-2">
-      {items.map((i) => (
-        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-          {check ? (
-            <Check className="mt-0.5 size-4 shrink-0 text-brand" />
-          ) : (
-            <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand" />
-          )}
-          {i}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-0.5 text-foreground">{children}</p>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm font-medium text-foreground">{value}</p>
     </div>
   );
 }
