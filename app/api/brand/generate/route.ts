@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { inspectSite } from "@/lib/brand/inspect";
 import { buildAdPlan, buildBrandPreview } from "@/lib/brand/generate";
+import { generateAdPlanWithVertex } from "@/lib/brand/generate-vertex";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { toErrorResponse } from "@/lib/errors";
 
@@ -35,8 +36,11 @@ export async function POST(request: Request) {
 
   try {
     const inspection = await inspectSite(body.url);
-    const brand = buildBrandPreview(inspection);
-    const plan = buildAdPlan(brand);
+    // Prefer Gemini on Vertex AI for the whole plan; fall back to the
+    // deterministic builder when Vertex isn't configured.
+    const plan =
+      (await generateAdPlanWithVertex(inspection)) ??
+      buildAdPlan(buildBrandPreview(inspection));
     return NextResponse.json({ plan });
   } catch (err) {
     const e = toErrorResponse(err);
