@@ -6,20 +6,24 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 /**
- * Nano Banana (Gemini 2.5 Flash Image) ad-creative generator.
+ * Nano Banana (Gemini 2.5 Flash Image) ad-creative generator — Vertex AI.
  *
  * Generates a single photographic ad creative on the spot from the brand +
  * concept, returned as a base64 data URL. The client overlays the Meta/feed
  * chrome around it.
  *
- * Key handling: uses the Gemini Developer API key (GEMINI_API_KEY). The key is
- * a real server secret — never hardcoded, never sent to the browser. When no
- * key is configured the route returns { image: null } so the UI falls back to
- * the branded gradient and the app still builds/deploys without it. We do NOT
- * use the Vertex service-account path (those credentials are out of scope).
+ * Auth: Vertex AI via Application Default Credentials.
+ *   - GOOGLE_GENAI_USE_VERTEXAI=true, GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION
+ *   - Credentials come from ADC: `gcloud auth application-default login` for
+ *     local dev, or a service-account JSON passed inline via
+ *     GOOGLE_VERTEX_CREDENTIALS (used on Vercel — a real secret, never
+ *     committed). We never read or embed any key in source.
+ *   - Falls back to the Gemini Developer API (GEMINI_API_KEY) only if Vertex
+ *     isn't configured.
+ * When no credentials resolve, generation throws and the route returns
+ * { image: null } so the UI shows the branded gradient and the app still
+ * builds and deploys.
  */
-
-const API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
 
 // Nano Banana model ids, tried in order (GA first, then preview).
 const MODELS = [
@@ -31,6 +35,33 @@ const MODELS = [
 // Small in-memory cache so the 3 concepts (and reloads) don't re-bill.
 const cache = new Map<string, string>();
 const CACHE_MAX = 60;
+
+type GenAIOptions = ConstructorParameters<typeof GoogleGenAI>[0];
+
+function makeClient(): GoogleGenAI | null {
+  const project = process.env.GOOGLE_CLOUD_PROJECT;
+  const location = process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
+  const useVertex = process.env.GOOGLE_GENAI_USE_VERTEXAI !== "false" && !!project;
+
+  if (useVertex) {
+    const options: GenAIOptions = { vertexai: true, project, location };
+    // Optional inline service-account JSON (Vercel / headless). Never logged.
+    const credsJson = process.env.GOOGLE_VERTEX_CREDENTIALS;
+    if (credsJson) {
+      try {
+        const credentials = JSON.parse(credsJson) as Record<string, unknown>;
+        (options as { googleAuthOptions?: { credentials?: unknown } }).googleAuthOptions =
+          { credentials };
+      } catch {
+        // Malformed inline creds — fall through to default ADC discovery.
+      }
+    }
+    return new GoogleGenAI(options);
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  return apiKey ? new GoogleGenAI({ apiKey }) : null;
+}
 
 interface Body {
   company?: string;
@@ -58,8 +89,9 @@ function buildPrompt(b: Body): string {
 }
 
 export async function POST(request: Request) {
-  if (!API_KEY) {
-    return NextResponse.json({ image: null, reason: "no-key" });
+  const ai = makeClient();
+  if (!ai) {
+    return NextResponse.json({ image: null, reason: "no-credentials" });
   }
 
   const ip =
@@ -82,9 +114,7 @@ export async function POST(request: Request) {
   const cached = cache.get(prompt);
   if (cached) return NextResponse.json({ image: cached, cached: true });
 
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
   let lastReason = "no-image";
-
   for (const model of MODELS) {
     try {
       const res = await ai.models.generateContent({
