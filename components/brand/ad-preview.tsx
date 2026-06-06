@@ -17,11 +17,13 @@ export function AdPreview({
   concept,
   brand,
   generate = true,
+  onImage,
   className,
 }: {
   concept: CreativeConcept;
   brand: BrandPreview;
   generate?: boolean;
+  onImage?: (dataUrl: string) => void;
   className?: string;
 }) {
   const primary = brand.palette[0]?.hex ?? "#3f7d44";
@@ -30,6 +32,10 @@ export function AdPreview({
   const [image, setImage] = useState<string | null>(null);
   const [status, setStatus] = useState<GenStatus>(generate ? "loading" : "fallback");
   const started = useRef(false);
+  const onImageRef = useRef(onImage);
+  useEffect(() => {
+    onImageRef.current = onImage;
+  }, [onImage]);
 
   useEffect(() => {
     if (!generate || started.current) return;
@@ -58,6 +64,7 @@ export function AdPreview({
         if (json.image) {
           setImage(json.image);
           setStatus("done");
+          onImageRef.current?.(json.image);
         } else {
           setStatus("fallback");
         }

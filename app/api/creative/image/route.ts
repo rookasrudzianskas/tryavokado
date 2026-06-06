@@ -11,10 +11,10 @@ export const maxDuration = 60;
  * overlays the Meta/feed chrome around it.
  *
  * Providers, tried in order (first one configured wins):
- *   1. HuggingFace Inference (Flux) — HUGGINGFACE_API_KEY.
- *   2. Replicate (Flux) — REPLICATE_API_TOKEN.
- *   3. Vertex AI / Gemini 2.5 Flash Image (Nano Banana) — Vertex ADC or
- *      GEMINI_API_KEY.
+ *   1. Vertex AI Nano Banana (Gemini 2.5 Flash Image) — set GOOGLE_VERTEX_CREDENTIALS
+ *      (a fresh service-account JSON) + GOOGLE_CLOUD_PROJECT. This is preferred.
+ *   2. HuggingFace Inference (Flux) — HUGGINGFACE_API_KEY.
+ *   3. Replicate (Flux) — REPLICATE_API_TOKEN.
  * All keys are server-only env vars — never hardcoded, never sent to the
  * browser, never committed. With no provider configured the route returns
  * { image: null } so the UI shows the branded gradient and the app still builds
@@ -170,21 +170,22 @@ type GenAIOptions = ConstructorParameters<typeof GoogleGenAI>[0];
 function makeGeminiClient(): GoogleGenAI | null {
   const project = process.env.GOOGLE_CLOUD_PROJECT;
   const location = process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
-  const useVertex = process.env.GOOGLE_GENAI_USE_VERTEXAI !== "false" && !!project;
+  const credsJson = process.env.GOOGLE_VERTEX_CREDENTIALS;
 
-  if (useVertex) {
-    const options: GenAIOptions = { vertexai: true, project, location };
-    const credsJson = process.env.GOOGLE_VERTEX_CREDENTIALS;
-    if (credsJson) {
-      try {
-        const credentials = JSON.parse(credsJson) as Record<string, unknown>;
-        (options as { googleAuthOptions?: { credentials?: unknown } }).googleAuthOptions =
-          { credentials };
-      } catch {
-        /* fall through to default ADC discovery */
-      }
+  // Vertex AI only with an EXPLICIT inline service-account credential. We never
+  // fall back to ambient ADC (GOOGLE_APPLICATION_CREDENTIALS), so a pre-existing
+  // or flagged key on the host is never used — Vertex Nano Banana turns on only
+  // when the user sets a fresh GOOGLE_VERTEX_CREDENTIALS.
+  if (credsJson && project) {
+    try {
+      const credentials = JSON.parse(credsJson) as Record<string, unknown>;
+      const options: GenAIOptions = { vertexai: true, project, location };
+      (options as { googleAuthOptions?: { credentials?: unknown } }).googleAuthOptions =
+        { credentials };
+      return new GoogleGenAI(options);
+    } catch {
+      /* malformed inline credentials → no Vertex */
     }
-    return new GoogleGenAI(options);
   }
 
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
@@ -238,6 +239,13 @@ export async function POST(request: Request) {
   const cached = cache.get(prompt);
   if (cached) return NextResponse.json({ image: cached, cached: true });
 
+  // Preferred: Vertex AI Nano Banana (Gemini 2.5 Flash Image) when credentialed.
+  const gemini = await generateWithGemini(prompt);
+  if (gemini) {
+    cacheSet(prompt, gemini);
+    return NextResponse.json({ image: gemini, provider: "vertex-nano-banana" });
+  }
+
   const hf = await generateWithHuggingFace(prompt);
   if (hf) {
     cacheSet(prompt, hf);
@@ -248,12 +256,6 @@ export async function POST(request: Request) {
   if (replicate) {
     cacheSet(prompt, replicate);
     return NextResponse.json({ image: replicate, provider: "replicate" });
-  }
-
-  const gemini = await generateWithGemini(prompt);
-  if (gemini) {
-    cacheSet(prompt, gemini);
-    return NextResponse.json({ image: gemini, provider: "vertex" });
   }
 
   return NextResponse.json({ image: null, reason: "no-provider" });

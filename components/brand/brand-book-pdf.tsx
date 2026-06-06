@@ -3,6 +3,7 @@ import {
   Page,
   View,
   Text,
+  Image,
   StyleSheet,
   pdf,
 } from "@react-pdf/renderer";
@@ -83,6 +84,20 @@ const s = StyleSheet.create({
   twoCol: { flexDirection: "row" },
   col: { flex: 1, marginRight: 22 },
 
+  heroImg: {
+    width: "100%",
+    height: 220,
+    objectFit: "cover",
+    borderRadius: 12,
+    marginBottom: 28,
+  },
+  creativeImg: {
+    width: "100%",
+    height: 150,
+    objectFit: "cover",
+    borderRadius: 6,
+    marginBottom: 12,
+  },
   card: { borderWidth: 1, borderColor: C.line, borderRadius: 9, padding: 16, marginBottom: 10 },
   cardHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
   cardTitle: { fontFamily: "Helvetica-Bold", fontSize: 12.5 },
@@ -130,8 +145,18 @@ function Bullets({ items }: { items: string[] }) {
   );
 }
 
-export function BrandBookDocument({ plan, date }: { plan: AdPlan; date: string }) {
+export function BrandBookDocument({
+  plan,
+  date,
+  images = [],
+}: {
+  plan: AdPlan;
+  date: string;
+  /** Generated creative images (PNG data URLs), aligned to `creatives`. */
+  images?: (string | null)[];
+}) {
   const { brand, strategy, creatives, campaign } = plan;
+  const heroImage = images.find((i): i is string => Boolean(i)) ?? null;
 
   return (
     <Document
@@ -147,7 +172,12 @@ export function BrandBookDocument({ plan, date }: { plan: AdPlan; date: string }
         </View>
         <View style={s.ruleInk} />
 
-        <View style={s.coverCenter}>
+        {heroImage ? (
+          // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf Image has no alt
+          <Image src={heroImage} style={s.heroImg} />
+        ) : null}
+
+        <View style={{ marginTop: heroImage ? 28 : 190 }}>
           <Text style={s.company}>{brand.companyName}</Text>
           <Text style={s.tagline}>{brand.tagline}</Text>
         </View>
@@ -265,12 +295,16 @@ export function BrandBookDocument({ plan, date }: { plan: AdPlan; date: string }
       {/* Creative */}
       <Page size="A4" style={s.page}>
         <Header kicker="04 — Ad creative" title="Concepts, ready for review" />
-        {creatives.map((c) => (
-          <View style={s.card} key={c.name}>
+        {creatives.map((c, i) => (
+          <View style={s.card} key={c.name} wrap={false}>
             <View style={s.cardHead}>
               <Text style={s.cardTitle}>{c.name}</Text>
               <Text style={s.cardTag}>{c.format}</Text>
             </View>
+            {images[i] ? (
+              // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf Image has no alt
+              <Image src={images[i] as string} style={s.creativeImg} />
+            ) : null}
             <Text style={s.fieldLabel}>Primary text</Text>
             <Text style={s.fieldValue}>{c.primaryText}</Text>
             <Text style={s.fieldLabel}>Headline</Text>
@@ -320,6 +354,12 @@ export function BrandBookDocument({ plan, date }: { plan: AdPlan; date: string }
 }
 
 /** Render the brand book to a PDF Blob (client-side, on demand). */
-export async function renderBrandBookBlob(plan: AdPlan, date: string): Promise<Blob> {
-  return pdf(<BrandBookDocument plan={plan} date={date} />).toBlob();
+export async function renderBrandBookBlob(
+  plan: AdPlan,
+  date: string,
+  images?: (string | null)[],
+): Promise<Blob> {
+  return pdf(
+    <BrandBookDocument plan={plan} date={date} images={images} />,
+  ).toBlob();
 }

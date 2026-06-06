@@ -48,6 +48,7 @@ export default function GeneratePage() {
   const [plan, setPlan] = useState<AdPlan | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [creativeImages, setCreativeImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (started.current) return;
@@ -213,7 +214,8 @@ export default function GeneratePage() {
         month: "long",
         year: "numeric",
       });
-      const blob = await renderBrandBookBlob(plan, date);
+      const images = plan.creatives.map((c) => creativeImages[c.name] ?? null);
+      const blob = await renderBrandBookBlob(plan, date, images);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -392,7 +394,13 @@ export default function GeneratePage() {
             {creatives.map((c, i) => (
               <Reveal key={c.name} delay={i * 0.06}>
                 <div className="space-y-3">
-                  <AdPreview concept={c} brand={brand} />
+                  <AdPreview
+                    concept={c}
+                    brand={brand}
+                    onImage={(url) =>
+                      setCreativeImages((prev) => ({ ...prev, [c.name]: url }))
+                    }
+                  />
                   <div className="px-1">
                     <p className="text-xs font-medium uppercase tracking-wide text-brand/90">
                       {c.name}
