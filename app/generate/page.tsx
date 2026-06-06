@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Reveal } from "@/components/marketing/reveal";
 import { AdPreview } from "@/components/brand/ad-preview";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { formatCurrency } from "@/lib/utils";
 import { HUMAN_HELP } from "@/lib/constants";
 import type { AdPlan, BrandPreview } from "@/lib/brand/types";
@@ -134,7 +135,7 @@ export default function GeneratePage() {
           </Badge>
           <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight text-foreground">
             Designing an ad plan for{" "}
-            <span className="bg-gradient-to-r from-[oklch(0.84_0.16_142)] to-[oklch(0.72_0.13_215)] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-foreground to-foreground/55 bg-clip-text text-transparent">
               {domain}
             </span>
           </h1>
@@ -142,7 +143,7 @@ export default function GeneratePage() {
         <Card className="mt-10 overflow-hidden p-0">
           <div className="h-1 w-full bg-border/70">
             <div
-              className="h-full bg-gradient-to-r from-[oklch(0.84_0.16_142)] to-[oklch(0.72_0.13_215)] transition-[width] duration-700 ease-out"
+              className="h-full bg-foreground transition-[width] duration-700 ease-out"
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -187,11 +188,11 @@ export default function GeneratePage() {
   /* --------------------------------- done ---------------------------------- */
   if (!plan) return null;
   const { brand, strategy, creatives, campaign } = plan;
-  const stats = [
-    `${strategy.angles.length} ad angles`,
-    `${creatives.length} ad concepts`,
-    `${campaign.adSets.length} ad sets`,
-    `${formatCurrency(strategy.dailyBudget, strategy.currency)}/day`,
+  const stats: StatChip[] = [
+    { value: strategy.angles.length, suffix: " ad angles" },
+    { value: creatives.length, suffix: " ad concepts" },
+    { value: campaign.adSets.length, suffix: " ad sets" },
+    { value: strategy.dailyBudget, prefix: "€", suffix: "/day" },
   ];
 
   return (
@@ -409,7 +410,7 @@ export default function GeneratePage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="warning" className="gap-1">
+                  <Badge variant="outline" className="gap-1">
                     <PauseCircle className="size-3" /> {campaign.status}
                   </Badge>
                   <Badge variant="muted">
@@ -502,6 +503,8 @@ export default function GeneratePage() {
 
 /* -------------------------------- helpers --------------------------------- */
 
+type StatChip = { value: number; prefix?: string; suffix: string };
+
 function BrandCover({
   brand,
   domain,
@@ -509,47 +512,45 @@ function BrandCover({
 }: {
   brand: BrandPreview;
   domain: string;
-  stats: string[];
+  stats: StatChip[];
 }) {
-  const p0 = brand.palette[0]?.hex ?? "#3f7d44";
-  const p1 = brand.palette[1]?.hex ?? "#1f9d8a";
-  const p2 = brand.palette[2]?.hex ?? p1;
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-border">
+    <div className="relative overflow-hidden rounded-3xl border border-border bg-card">
+      {/* hairline grid + soft top highlight (monochrome, Vercel-style) */}
+      <div aria-hidden className="absolute inset-0 bg-grid opacity-50 mask-fade-b" />
       <div
-        className="absolute inset-0"
-        style={{ background: `linear-gradient(135deg, ${p0} 0%, ${p1} 55%, ${p2} 100%)` }}
-      />
-      <div
+        aria-hidden
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(120% 90% at 12% 0%, rgba(255,255,255,0.30), transparent 55%)",
+            "radial-gradient(75% 55% at 18% 0%, oklch(1 0 0 / 0.07), transparent 60%)",
         }}
       />
-      <div className="absolute inset-0 bg-dots opacity-[0.14]" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-black/10" />
       <div className="relative p-7 sm:p-12">
         <div className="flex flex-wrap items-center gap-2.5">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/50 px-2.5 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
             <Sparkles className="size-3" /> AI brand book
           </span>
-          <span className="text-sm text-white/75">{domain}</span>
+          <span className="text-sm text-muted-foreground">{domain}</span>
         </div>
-        <h1 className="mt-6 font-display text-5xl font-semibold leading-[0.95] tracking-tight text-white sm:text-7xl">
+        <h1 className="mt-6 font-display text-5xl font-semibold leading-[0.95] tracking-tight text-foreground sm:text-7xl">
           {brand.companyName}
         </h1>
-        <p className="mt-5 max-w-xl text-lg text-white/85 sm:text-xl">{brand.tagline}</p>
+        <p className="mt-5 max-w-xl text-lg text-muted-foreground sm:text-xl">
+          {brand.tagline}
+        </p>
         <div className="mt-8 flex flex-wrap gap-2">
           {stats.map((s) => (
             <span
-              key={s}
-              className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
+              key={s.suffix}
+              className="inline-flex items-center rounded-full border border-border bg-background/40 px-3 py-1.5 text-xs font-medium text-foreground"
             >
-              {s}
+              {s.prefix}
+              <AnimatedNumber value={s.value} />
+              {s.suffix}
             </span>
           ))}
-          <span className="inline-flex items-center gap-1 rounded-full bg-black/30 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/40 px-3 py-1.5 text-xs font-medium text-muted-foreground">
             <PauseCircle className="size-3" /> Draft — approval required
           </span>
         </div>

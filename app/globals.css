@@ -31,8 +31,9 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
 
-  /* The single brand accent — avocado. Used sparingly. */
-  --brand: oklch(0.62 0.13 142);
+  /* Strict monochrome (Vercel). The "brand" accent resolves to ink/paper so
+     any text-brand / bg-brand usage stays black & white. */
+  --brand: oklch(0.145 0 0);
   --brand-foreground: oklch(0.985 0 0);
 
   --warning: oklch(0.74 0.13 74);
@@ -44,7 +45,7 @@
 
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.62 0.13 142);
+  --ring: oklch(0.45 0 0);
 
   --chart-1: oklch(0.55 0.12 142);
   --chart-2: oklch(0.55 0.11 250);
@@ -59,7 +60,7 @@
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.62 0.13 142);
+  --sidebar-ring: oklch(0.45 0 0);
 }
 
 .dark {
@@ -83,7 +84,7 @@
   --accent: oklch(0.2 0 0);
   --accent-foreground: oklch(0.985 0 0);
 
-  --brand: oklch(0.72 0.15 142);
+  --brand: oklch(0.985 0 0);
   --brand-foreground: oklch(0.12 0 0);
 
   --warning: oklch(0.78 0.13 78);
@@ -95,7 +96,7 @@
 
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.15 142);
+  --ring: oklch(0.7 0 0);
 
   --chart-1: oklch(0.7 0.14 142);
   --chart-2: oklch(0.65 0.13 250);
@@ -110,7 +111,7 @@
   --sidebar-accent: oklch(0.18 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.72 0.15 142);
+  --sidebar-ring: oklch(0.7 0 0);
 }
 
 @theme inline {
@@ -176,6 +177,16 @@
   to { background-position: 200% 0; }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmerSweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(200%); }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -194,7 +205,7 @@
     letter-spacing: -0.035em;
   }
   ::selection {
-    background: oklch(0.62 0.13 142 / 0.22);
+    background: oklch(0.5 0 0 / 0.24);
   }
   :focus-visible {
     @apply outline-none ring-2 ring-ring/55 ring-offset-2 ring-offset-background;

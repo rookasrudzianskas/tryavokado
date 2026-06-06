@@ -38,7 +38,7 @@ export function UrlPrompt({ className }: { className?: string }) {
         {/* focus glow */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-r from-[oklch(0.84_0.16_142)]/40 via-transparent to-[oklch(0.72_0.13_215)]/40 opacity-0 blur-md transition-opacity duration-500 group-focus-within:opacity-100"
+          className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-r from-foreground/20 via-foreground/5 to-foreground/20 opacity-0 blur-md transition-opacity duration-500 group-focus-within:opacity-100"
         />
         <div className="relative flex flex-col gap-2 rounded-2xl border border-border bg-card/80 p-2 shadow-sm backdrop-blur transition-colors focus-within:border-foreground/25 sm:flex-row sm:items-center">
           <div className="flex h-12 flex-1 items-center gap-3 px-3">

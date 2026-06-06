@@ -67,7 +67,7 @@ export default function HomePage() {
             </Badge>
             <h1 className="mt-6 text-balance font-display text-5xl font-semibold leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-[4.25rem]">
               Turn your store into{" "}
-              <span className="bg-gradient-to-r from-[oklch(0.84_0.16_142)] via-[oklch(0.78_0.13_178)] to-[oklch(0.72_0.13_215)] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/50 bg-clip-text text-transparent">
                 Meta campaigns
               </span>{" "}
               that fit your brand.

@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
 
 /*
-  Hand-built SVG graphics for the marketing site. Dark-surface, hairline strokes,
-  a single green→teal→cyan accent gradient. Static and intentional.
+  Hand-built SVG graphics for the marketing site. Strictly monochrome —
+  dark surfaces, hairline white strokes, a white→gray accent gradient.
+  No color; Vercel-style. Static and intentional.
 */
 
 const STROKE = "oklch(1 0 0 / 0.12)";
@@ -14,9 +15,9 @@ const TEXT = "oklch(1 0 0 / 0.32)";
 function AccentGradient({ id }: { id: string }) {
   return (
     <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stopColor="oklch(0.78 0.16 142)" />
-      <stop offset="55%" stopColor="oklch(0.72 0.13 178)" />
-      <stop offset="100%" stopColor="oklch(0.66 0.13 215)" />
+      <stop offset="0%" stopColor="oklch(0.98 0 0)" />
+      <stop offset="55%" stopColor="oklch(0.78 0 0)" />
+      <stop offset="100%" stopColor="oklch(0.55 0 0)" />
     </linearGradient>
   );
 }
@@ -35,8 +36,8 @@ export function HeroCanvas({ className }: { className?: string }) {
       <defs>
         <AccentGradient id="hero-accent" />
         <radialGradient id="hero-glow" cx="50%" cy="0%" r="70%">
-          <stop offset="0%" stopColor="oklch(0.72 0.15 142 / 0.22)" />
-          <stop offset="100%" stopColor="oklch(0.72 0.15 142 / 0)" />
+          <stop offset="0%" stopColor="oklch(1 0 0 / 0.12)" />
+          <stop offset="100%" stopColor="oklch(1 0 0 / 0)" />
         </radialGradient>
       </defs>
 
@@ -72,7 +73,7 @@ export function HeroCanvas({ className }: { className?: string }) {
       {[96, 318].map((x) => (
         <g key={x}>
           <rect x={x} y="196" width="108" height="38" rx="9" fill={FILL} stroke={STROKE} />
-          <circle cx={x + 16} cy="215" r="4" fill="oklch(0.72 0.13 178)" />
+          <circle cx={x + 16} cy="215" r="4" fill="oklch(0.82 0 0)" />
           <rect x={x + 28} y="208" width="46" height="5" rx="2.5" fill="oklch(1 0 0 / 0.45)" />
           <rect x={x + 28} y="219" width="30" height="4" rx="2" fill={TEXT} />
         </g>
@@ -89,9 +90,9 @@ export function HeroCanvas({ className }: { className?: string }) {
 
       {/* status pill */}
       <g>
-        <rect x="356" y="92" width="92" height="26" rx="13" fill="oklch(0.72 0.15 142 / 0.12)" stroke="oklch(0.72 0.15 142 / 0.3)" />
-        <circle cx="372" cy="105" r="3.5" fill="oklch(0.78 0.16 142)" />
-        <rect x="382" y="102" width="52" height="6" rx="3" fill="oklch(0.82 0.12 142 / 0.7)" />
+        <rect x="356" y="92" width="92" height="26" rx="13" fill="oklch(1 0 0 / 0.08)" stroke="oklch(1 0 0 / 0.2)" />
+        <circle cx="372" cy="105" r="3.5" fill="oklch(0.92 0 0)" />
+        <rect x="382" y="102" width="52" height="6" rx="3" fill="oklch(0.9 0 0 / 0.6)" />
       </g>
     </svg>
   );
@@ -118,10 +119,10 @@ export function BrandGraphic({ className }: { className?: string }) {
         palette
       </text>
       {[
-        ["oklch(0.78 0.16 142)", 56],
-        ["oklch(0.72 0.13 178)", 80],
-        ["oklch(0.66 0.13 215)", 104],
-        ["oklch(0.6 0.02 120)", 128],
+        ["oklch(0.95 0 0)", 56],
+        ["oklch(0.78 0 0)", 80],
+        ["oklch(0.6 0 0)", 104],
+        ["oklch(0.42 0 0)", 128],
       ].map(([c, x]) => (
         <circle key={x as number} cx={(x as number) + 6} cy="146" r="7" fill={c as string} stroke="oklch(1 0 0 / 0.15)" />
       ))}
@@ -169,8 +170,8 @@ export function AnalyticsGraphic({ className }: { className?: string }) {
       <defs>
         <AccentGradient id="ana-accent" />
         <linearGradient id="ana-area" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.72 0.15 142 / 0.32)" />
-          <stop offset="100%" stopColor="oklch(0.72 0.15 142 / 0)" />
+          <stop offset="0%" stopColor="oklch(1 0 0 / 0.3)" />
+          <stop offset="100%" stopColor="oklch(1 0 0 / 0)" />
         </linearGradient>
       </defs>
       <rect x="28" y="20" width="264" height="136" rx="12" fill={FILL} stroke={STROKE} />
@@ -196,11 +197,11 @@ export function AnalyticsGraphic({ className }: { className?: string }) {
         [168, 72],
         [248, 50],
       ].map(([x, y]) => (
-        <circle key={x} cx={x} cy={y} r="3.5" fill="oklch(0.1 0 0)" stroke="oklch(0.78 0.16 142)" strokeWidth="2" />
+        <circle key={x} cx={x} cy={y} r="3.5" fill="oklch(0.1 0 0)" stroke="oklch(0.95 0 0)" strokeWidth="2" />
       ))}
       {/* metric chips */}
       <rect x="44" y="32" width="52" height="8" rx="4" fill="oklch(1 0 0 / 0.4)" />
-      <rect x="216" y="30" width="40" height="14" rx="7" fill="oklch(0.72 0.15 142 / 0.14)" stroke="oklch(0.72 0.15 142 / 0.3)" />
+      <rect x="216" y="30" width="40" height="14" rx="7" fill="oklch(1 0 0 / 0.08)" stroke="oklch(1 0 0 / 0.2)" />
     </svg>
   );
 }
@@ -233,8 +234,8 @@ export function SafetyGraphic({ className }: { className?: string }) {
       <rect x="128" y="99" width="20" height="3" rx="1.5" fill={TEXT} />
       <rect x="128" y="106" width="14" height="3" rx="1.5" fill={TEXT} />
 
-      <rect x="196" y="80" width="44" height="40" rx="9" fill="oklch(0.72 0.15 142 / 0.12)" stroke="oklch(0.72 0.15 142 / 0.35)" />
-      <path d="M208 100 l6 6 l12 -13" stroke="oklch(0.8 0.16 142)" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="196" y="80" width="44" height="40" rx="9" fill="oklch(1 0 0 / 0.08)" stroke="oklch(1 0 0 / 0.28)" />
+      <path d="M208 100 l6 6 l12 -13" stroke="oklch(0.96 0 0)" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
 
       <rect x="252" y="80" width="44" height="40" rx="9" fill={FILL} stroke={STROKE} />
       <path d="M268 90 l14 10 l-14 10 Z" fill="oklch(1 0 0 / 0.35)" />
