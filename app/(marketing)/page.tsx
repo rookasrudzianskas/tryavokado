@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/marketing/reveal";
+import { UrlPrompt } from "@/components/marketing/url-prompt";
 import { HeroBackdrop } from "@/components/marketing/hero-backdrop";
 import {
   AnalyticsGraphic,
@@ -76,24 +77,21 @@ export default function HomePage() {
               builds campaign-ready creative — then helps you launch and improve
               with safety and approval controls at every step.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg">
-                <Link href="/register">
-                  Start free <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/how-it-works">See how it works</Link>
-              </Button>
+            <div className="mt-8 max-w-xl">
+              <UrlPrompt />
             </div>
-            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-              {["Draft-first by default", "Approval required to spend", "Tokens encrypted"].map(
-                (item) => (
-                  <span key={item} className="inline-flex items-center gap-1.5">
-                    <CheckCircle2 className="size-4 text-brand" /> {item}
-                  </span>
-                ),
-              )}
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <Link
+                href="/register"
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                Or explore in demo mode →
+              </Link>
+              {["No login to start", "Draft-first by default"].map((item) => (
+                <span key={item} className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 className="size-4 text-brand" /> {item}
+                </span>
+              ))}
             </div>
           </div>
           <Reveal delay={0.05}>

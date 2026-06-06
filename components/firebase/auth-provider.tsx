@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
-import { auth } from "@/lib/firebase/client";
+import { auth, initFirebaseAnalytics } from "@/lib/firebase/client";
 import { ensureUserDoc } from "@/lib/firebase/data";
 
 type AuthContextValue = { user: FirebaseUser | null; loading: boolean };
@@ -20,6 +20,7 @@ export function FirebaseAuthProvider({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    void initFirebaseAnalytics();
     return onAuthStateChanged(auth, async (nextUser) => {
       if (nextUser) {
         try {
