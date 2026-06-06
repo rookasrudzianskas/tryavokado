@@ -37,9 +37,15 @@ const s = StyleSheet.create({
   topMeta: { fontSize: 8, letterSpacing: 1.6, color: C.sub, textTransform: "uppercase" },
   ruleInk: { height: 1.4, backgroundColor: C.ink, marginTop: 10 },
 
-  coverCenter: { marginTop: 200 },
-  company: { fontFamily: "Helvetica-Bold", fontSize: 42, letterSpacing: -0.8 },
-  tagline: { marginTop: 14, fontSize: 14, color: C.sub, maxWidth: 400, lineHeight: 1.45 },
+  coverCenter: { marginTop: 190 },
+  company: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 40,
+    lineHeight: 1.1,
+    letterSpacing: -0.5,
+    marginBottom: 18,
+  },
+  tagline: { fontSize: 14, color: C.sub, maxWidth: 420, lineHeight: 1.5 },
 
   coverFooter: { position: "absolute", bottom: 56, left: 56, right: 56 },
   swatchRow: { flexDirection: "row" },
