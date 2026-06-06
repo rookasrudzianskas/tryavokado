@@ -67,10 +67,8 @@ export default function HomePage() {
             </Badge>
             <h1 className="mt-6 text-balance font-display text-5xl font-semibold leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-[4.25rem]">
               Turn your store into{" "}
-              <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/50 bg-clip-text text-transparent">
-                Meta campaigns
-              </span>{" "}
-              that fit your brand.
+              <span className="text-foreground">Meta campaigns</span> that fit
+              your brand.
             </h1>
             <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
               Avokado connects your store, learns your brand and products, and

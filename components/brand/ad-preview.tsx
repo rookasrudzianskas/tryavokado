@@ -25,7 +25,6 @@ export function AdPreview({
   className?: string;
 }) {
   const primary = brand.palette[0]?.hex ?? "#3f7d44";
-  const accent = brand.palette[1]?.hex ?? "#1f9d8a";
   const initial = brand.companyName.charAt(0).toUpperCase();
 
   const [image, setImage] = useState<string | null>(null);
@@ -80,7 +79,7 @@ export function AdPreview({
       <div className="flex items-center gap-2.5 px-3.5 pt-3.5">
         <div
           className="flex size-9 items-center justify-center rounded-full text-sm font-semibold text-white"
-          style={{ background: `linear-gradient(135deg, ${primary}, ${accent})` }}
+          style={{ backgroundColor: primary }}
         >
           {initial}
         </div>
@@ -103,7 +102,7 @@ export function AdPreview({
       {/* creative image */}
       <div
         className="relative aspect-square w-full"
-        style={{ background: `linear-gradient(145deg, ${primary}, ${accent})` }}
+        style={{ backgroundColor: primary }}
       >
         {/* generated photo */}
         {status === "done" && image && (

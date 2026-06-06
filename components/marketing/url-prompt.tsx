@@ -35,12 +35,7 @@ export function UrlPrompt({ className }: { className?: string }) {
         }}
         className="group relative"
       >
-        {/* focus glow */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-r from-foreground/20 via-foreground/5 to-foreground/20 opacity-0 blur-md transition-opacity duration-500 group-focus-within:opacity-100"
-        />
-        <div className="relative flex flex-col gap-2 rounded-2xl border border-border bg-card/80 p-2 shadow-sm backdrop-blur transition-colors focus-within:border-foreground/25 sm:flex-row sm:items-center">
+        <div className="relative flex flex-col gap-2 rounded-2xl border border-border bg-card/80 p-2 shadow-sm backdrop-blur transition-all focus-within:border-foreground/30 focus-within:ring-4 focus-within:ring-foreground/10 sm:flex-row sm:items-center">
           <div className="flex h-12 flex-1 items-center gap-3 px-3">
             <Globe className="size-5 shrink-0 text-muted-foreground" />
             <input

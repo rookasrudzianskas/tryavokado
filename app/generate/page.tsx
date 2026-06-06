@@ -2,10 +2,12 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   Check,
   Circle,
+  Download,
   Loader2,
   Megaphone,
   MessageSquare,
@@ -45,6 +47,7 @@ export default function GeneratePage() {
   const [status, setStatus] = useState<Status>("running");
   const [plan, setPlan] = useState<AdPlan | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   useEffect(() => {
     if (started.current) return;
@@ -128,16 +131,19 @@ export default function GeneratePage() {
   if (status === "running") {
     const pct = Math.round((step / STEPS.length) * 100);
     return (
-      <div className="mx-auto max-w-xl px-5 py-24">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto max-w-xl px-5 py-24"
+      >
         <div className="text-center">
           <Badge variant="outline" className="gap-1.5">
             <Sparkles className="size-3 text-brand" /> Building your plan automatically
           </Badge>
           <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight text-foreground">
             Designing an ad plan for{" "}
-            <span className="bg-gradient-to-r from-foreground to-foreground/55 bg-clip-text text-transparent">
-              {domain}
-            </span>
+            <span className="text-foreground">{domain}</span>
           </h1>
         </div>
         <Card className="mt-10 overflow-hidden p-0">
@@ -181,7 +187,7 @@ export default function GeneratePage() {
         <p className="mt-5 text-center text-xs text-muted-foreground">
           Fully automatic. Reading only your public homepage — no account needed.
         </p>
-      </div>
+      </motion.div>
     );
   }
 
@@ -195,11 +201,66 @@ export default function GeneratePage() {
     { value: strategy.dailyBudget, prefix: "€", suffix: "/day" },
   ];
 
+  async function downloadPdf() {
+    if (!plan) return;
+    setPdfBusy(true);
+    try {
+      const { renderBrandBookBlob } = await import(
+        "@/components/brand/brand-book-pdf"
+      );
+      const date = new Date().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      const blob = await renderBrandBookBlob(plan, date);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${plan.brand.companyName
+        .replace(/[^a-z0-9]+/gi, "-")
+        .replace(/^-+|-+$/g, "")
+        .toLowerCase()}-brand-book.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (err) {
+      console.error("Brand book PDF failed", err);
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
   return (
-    <div className="mx-auto max-w-5xl px-5 py-12 sm:py-16">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="mx-auto max-w-5xl px-5 py-12 sm:py-16"
+    >
       {/* COVER */}
       <Reveal>
         <BrandCover brand={brand} domain={brand.domain} stats={stats} />
+      </Reveal>
+
+      {/* primary actions */}
+      <Reveal delay={0.05}>
+        <div className="mt-6 flex flex-wrap gap-2.5">
+          <Button size="lg" onClick={downloadPdf} disabled={pdfBusy}>
+            {pdfBusy ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Download className="size-4" />
+            )}
+            Download brand book (PDF)
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/register">
+              Save &amp; continue <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
       </Reveal>
 
       <div className="mt-16 space-y-16 sm:mt-24 sm:space-y-24">
@@ -497,7 +558,7 @@ export default function GeneratePage() {
           </Reveal>
         </section>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -516,16 +577,8 @@ function BrandCover({
 }) {
   return (
     <div className="relative overflow-hidden rounded-3xl border border-border bg-card">
-      {/* hairline grid + soft top highlight (monochrome, Vercel-style) */}
-      <div aria-hidden className="absolute inset-0 bg-grid opacity-50 mask-fade-b" />
-      <div
-        aria-hidden
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(75% 55% at 18% 0%, oklch(1 0 0 / 0.07), transparent 60%)",
-        }}
-      />
+      {/* flat panel + hairline grid (no gradient) */}
+      <div aria-hidden className="absolute inset-0 bg-grid opacity-40 mask-fade-b" />
       <div className="relative p-7 sm:p-12">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/50 px-2.5 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
@@ -543,7 +596,7 @@ function BrandCover({
           {stats.map((s) => (
             <span
               key={s.suffix}
-              className="inline-flex items-center rounded-full border border-border bg-background/40 px-3 py-1.5 text-xs font-medium text-foreground"
+              className="inline-block rounded-full border border-border bg-background/40 px-3 py-1.5 text-xs font-medium text-foreground"
             >
               {s.prefix}
               <AnimatedNumber value={s.value} />
